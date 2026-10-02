@@ -1,0 +1,7 @@
+MiniMap_Mod v0.0.4.1
+
+- Versionsanzeige im F5-Optionsmenü.
+- UPDATE SUCHEN öffnet die GitHub-Seite des neuesten Releases im Browser.
+- Updates werden manuell heruntergeladen und bei beendetem Spiel installiert.
+
+Die GitHub-Veröffentlichung muss vor Nutzung des Updatebuttons vorhanden sein.

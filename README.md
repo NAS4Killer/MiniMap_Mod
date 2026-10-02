@@ -2,7 +2,7 @@
 
 Client-Mod fuer 7 Days to Die 3.2.
 
-Version: **0.0.4.0**
+Version: **0.0.4.1**
 
 ## Erstes Ziel
 
@@ -29,6 +29,14 @@ Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
 
 ## Zukunfts-ToDo
 
-- Aktuell keine offenen Wunschpunkte.
+- Andere Spieler auf der MiniMap anzeigen.
+- Symbole der originalen Karte anzeigen.
+
+## Updates
+
+Im F5-Menü zeigt die Mod ihre Version. UPDATE SUCHEN öffnet das neueste
+GitHub-Release im Browser. ZIP herunterladen, Spiel beenden und den enthaltenen
+Ordner MiniMap_Mod im Mods-Ordner ersetzen. Die persönlichen Einstellungen
+bleiben in der separaten MiniMap_Mod.cfg erhalten.
 
 

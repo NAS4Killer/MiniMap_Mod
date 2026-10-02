@@ -6,6 +6,8 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>MiniMap_Mod</AssemblyName>
     <RootNamespace>MiniMapMod</RootNamespace>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

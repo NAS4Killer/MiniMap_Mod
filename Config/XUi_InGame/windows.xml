@@ -81,7 +81,7 @@
       <simplebutton name="positionStep100" pos="422,-502" width="68" height="34" caption="100 px" font_size="18" />
 
       <label pos="30,-552" width="270" height="28" text="Öffnen/Schließen: F5" font_size="18" color="180,180,180,255" />
-      <label name="miniMapVersion" pos="530,-462" width="290" height="32" text="Version 0.0.4.1" font_size="22" justify="center" color="255,255,255,255" />
+      <label name="miniMapVersion" pos="530,-462" width="290" height="32" text="Version 0.0.4.2" font_size="22" justify="center" color="255,255,255,255" />
       <simplebutton name="miniMapUpdate" pos="575,-502" width="200" height="34" caption="UPDATE SUCHEN" font_size="20" />
       <label pos="530,-546" width="290" height="32" text="Download über GitHub" font_size="18" justify="center" color="180,180,180,255" />
       <simplebutton name="miniMapClose" pos="345,-586" width="160" height="40" caption="SCHLIESSEN" font_size="21" />

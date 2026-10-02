@@ -2,7 +2,7 @@
 
 Client-Mod fuer 7 Days to Die 3.2.
 
-Version: **0.0.4.1**
+Version: **0.0.4.2**
 
 ## Erstes Ziel
 

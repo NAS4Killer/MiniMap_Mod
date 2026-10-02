@@ -1,0 +1,8 @@
+MiniMap_Mod v0.0.5.1
+
+- Updateprüfung automatisch beim ersten Öffnen des Optionsmenüs.
+- Ohne Update zeigt der Button Github und öffnet die Projektseite.
+- Neues Release: grüner Download-Button mit Versionsnummer.
+- Nach geprüftem Download: grüner Installieren-Button mit Versionsnummer.
+- Installation erfordert einen weiteren Klick; anschließend Github und Bitte neu starten.
+- Installation erfolgt weiterhin erst nach vollständigem Spielende mit Sicherung.

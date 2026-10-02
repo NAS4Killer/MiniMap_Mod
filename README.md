@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.0.5.0**
+Version: **0.0.5.1**
 
 ## Installation
 
@@ -32,7 +32,7 @@ Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
 - **Karte Norden:** an hält Norden oben; aus dreht die Karte und hält den Spielerpfeil nach oben.
 - **Position:** vier Richtungsknöpfe; Schrittweite 1, 10 oder 100 Pixel. **S** speichert die Position als Standard, **R** stellt diesen Standard wieder her.
 - **Version:** zeigt die installierte Mod-Version.
-- **UPDATE PRÜFEN:** vergleicht die installierte Version mit dem neuesten stabilen GitHub-Release. Bei einem neueren Release wird daraus **UPDATE INSTALLIEREN**.
+- **Github:** öffnet die Projektseite, wenn kein Update verfügbar ist. Beim ersten Öffnen des Menüs wird automatisch geprüft. Ein neues Release erscheint als grünes **Download + Version**, nach dem Download als grünes **Installieren + Version**.
 
 Andere Spieler und Symbole der originalen Karte werden noch nicht angezeigt.
 
@@ -72,13 +72,14 @@ Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
 
 ## Updates
 
-Mit **UPDATE PRÜFEN** wird das neueste stabile GitHub-Release abgefragt, ohne
+Beim ersten Öffnen des Optionsmenüs wird das neueste stabile GitHub-Release abgefragt, ohne
 Anmeldung und ohne Zugangsdaten. Ein neueres Release erscheint mit seiner
 Versionsnummer. Gleiche oder ältere Releases werden nicht installiert.
 
-**UPDATE INSTALLIEREN** lädt das Paket herunter und prüft Größe, SHA-256-Prüfsumme,
-Ordnerstruktur, enthaltene Dateien, Mod-Autor und Version. Sobald im Menü
-**Download bereit. Spiel beenden.** steht, das Spiel vollständig beenden.
+**Download + Version** lädt das Paket herunter und prüft Größe, SHA-256-Prüfsumme,
+Ordnerstruktur, enthaltene Dateien, Mod-Autor und Version. Anschließend
+**Installieren + Version** anklicken. Der Button zeigt wieder **Github**,
+darunter **Bitte neu starten**. Dann das Spiel vollständig beenden.
 Ein unsichtbarer Windows-Helfer wartet auf das Spielende, sichert die bisherigen
 Dateien und installiert anschließend das Update. Das Spiel wird weder beendet
 noch neu gestartet. Bei Schreibfehlern versucht der Helfer, die alten Dateien

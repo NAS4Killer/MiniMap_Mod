@@ -18,10 +18,36 @@ internal static class MiniMapUpdater
     private const int MaxPackageSize = 20 * 1024 * 1024;
     private static readonly object Gate = new object();
     private static bool busy, pending;
+    private static bool checkedOnce;
+    private static string preparedPayload;
     private static Release available;
-    private static volatile string status = "Noch nicht geprüft";
+    private static volatile string status = "";
     public static string Status => status;
-    public static string Caption { get { lock (Gate) return pending ? "BEENDEN ZUM UPDATE" : busy ? "BITTE WARTEN" : available != null ? "UPDATE INSTALLIEREN" : "UPDATE PRÜFEN"; } }
+    public static bool IsGreen { get { lock (Gate) return available != null && !pending; } }
+    public static string Caption
+    {
+        get
+        {
+            lock (Gate)
+            {
+                if (pending || available == null) return "Github";
+                string version = ParseVersion(available.tag_name).ToString();
+                return (preparedPayload == null ? "Download " : "Installieren ") + version;
+            }
+        }
+    }
+    public static bool Busy { get { lock (Gate) return busy; } }
+
+    public static void EnsureChecked()
+    {
+        lock (Gate)
+        {
+            if (checkedOnce || busy || pending) return;
+            checkedOnce = true;
+            busy = true;
+        }
+        RunOperation(true);
+    }
 
     [DataContract] internal sealed class Release
     {
@@ -47,28 +73,37 @@ internal static class MiniMapUpdater
         return version;
     }
 
-    public static void Press()
+    // True means the UI should open GitHub, on the Unity main thread.
+    public static bool Press()
     {
         lock (Gate)
         {
-            if (busy || pending) return;
+            if (pending || available == null) return true;
+            if (busy) return false;
             busy = true;
         }
+        RunOperation(false);
+        return false;
+    }
+
+    private static void RunOperation(bool checkOnly)
+    {
         Task.Run(async () =>
         {
             try
             {
                 Release release;
                 lock (Gate) release = available;
-                if (release == null) await Check();
-                else await PrepareInstallation(release);
+                if (checkOnly) await Check();
+                else if (preparedPayload == null) await Download(release);
+                else StartInstallation(release, preparedPayload);
             }
             catch (Exception error)
             {
-                status = "Update fehlgeschlagen; erneut prüfen";
+                status = "Update fehlgeschlagen; neu öffnen";
                 // No tokens or personal paths in the in-game status.
                 Trace.WriteLine("[MiniMap_Mod] Update: " + error.GetType().Name);
-                lock (Gate) available = null;
+                lock (Gate) { available = null; preparedPayload = null; checkedOnce = false; }
             }
             finally { lock (Gate) busy = false; }
         });
@@ -88,7 +123,7 @@ internal static class MiniMapUpdater
         using (var client = Client())
         using (var response = await client.GetAsync("https://api.github.com/repos/NAS4Killer/MiniMap_Mod/releases/latest"))
         {
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound) { status = "Noch kein Release verfügbar"; return; }
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound) { status = ""; return; }
             if (response.StatusCode == System.Net.HttpStatusCode.Forbidden || (int)response.StatusCode == 429)
             { status = "GitHub-Limit; später erneut prüfen"; return; }
             response.EnsureSuccessStatusCode();
@@ -98,10 +133,10 @@ internal static class MiniMapUpdater
                 Version remote = ParseVersion(release.tag_name);
                 if (release.draft || release.prerelease) throw new InvalidDataException("Kein stabiles Release.");
                 if (remote <= ParseVersion(MiniMapPreferences.Version))
-                { status = "Aktuell (GitHub " + remote + ")"; return; }
+                { status = ""; return; }
                 GetAsset(release);
                 lock (Gate) available = release;
-                status = "Neue Version " + remote + " verfügbar";
+                status = "";
             }
         }
     }
@@ -168,7 +203,7 @@ internal static class MiniMapUpdater
         }
     }
 
-    private static async Task PrepareInstallation(Release release)
+    private static async Task Download(Release release)
     {
         if (Environment.OSVersion.Platform != PlatformID.Win32NT) throw new PlatformNotSupportedException();
         Asset asset = GetAsset(release);
@@ -200,6 +235,14 @@ internal static class MiniMapUpdater
         string job = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "7DaysToDie", "MiniMap_Updates", Guid.NewGuid().ToString("N"));
         string payload = Path.Combine(job, "payload");
         ExtractPackage(bytes, payload, version);
+        lock (Gate) preparedPayload = payload;
+        status = "";
+    }
+
+    private static void StartInstallation(Release release, string payload)
+    {
+        string version = ParseVersion(release.tag_name).ToString();
+        string job = Path.GetDirectoryName(payload);
         string installer = Path.Combine(job, "Install.ps1");
         using (Stream resource = typeof(MiniMapUpdater).Assembly.GetManifestResourceStream("MiniMapMod.UpdateInstaller.ps1"))
         using (Stream output = File.Create(installer)) resource.CopyTo(output);
@@ -214,7 +257,7 @@ internal static class MiniMapUpdater
         if (process == null) throw new IOException("Installer konnte nicht gestartet werden.");
         process.Dispose();
         lock (Gate) pending = true;
-        status = "Download bereit. Spiel beenden.";
+        status = "Bitte neu starten";
     }
 
     private static string Quote(string value) => "'" + value.Replace("'", "''") + "'";

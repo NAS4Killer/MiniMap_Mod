@@ -1,0 +1,5 @@
+<configs>
+  <append xpath="/xui/window_group[@name='compass']">
+    <window name="windowMiniMap" anchor="TopRight" />
+  </append>
+</configs>

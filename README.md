@@ -2,7 +2,7 @@
 
 Client-Mod fuer 7 Days to Die 3.2.
 
-Version: **0.0.0.1**
+Version: **0.0.1.0**
 
 ## Erstes Ziel
 
@@ -12,7 +12,7 @@ Die vorhandene Ingame-Karte wird als kleine HUD-MiniMap wiederverwendet. Angezei
 
 - `XUiC_MapArea` ist erweiterbar und besitzt bereits Kartentextur, lokalen Spieler und Zentrierungslogik.
 - Fuer die erste Version ist keine Server-Mod erforderlich.
-- Das Projekt enthaelt zunaechst das kompilierbare Client-Mod-Grundgeruest.
+- Ein erster HUD-Prototyp verwendet `XUiC_MapArea`, zentriert auf den lokalen Spieler.
 
 ## Bauen
 

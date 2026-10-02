@@ -1,0 +1,25 @@
+<configs>
+  <append xpath="/windows">
+    <window name="windowMiniMap" width="256" height="256" pos="-276,-20" anchor="TopRight" controller="MiniMapArea, MiniMap_Mod" visibility="always">
+      <sprite depth="0" name="diagnosticBackground" sprite="menu_empty" color="255,0,0,180" type="sliced" fillcenter="true" width="256" height="256" />
+      <rect name="toolbar" width="1" height="1" pos="0,0">
+        <button name="playerIcon" width="1" height="1" visible="false" />
+        <label name="playerPos" width="1" height="1" visible="false" />
+        <button name="bedrollIcon" width="1" height="1" visible="false" />
+        <label name="bedrollPos" width="1" height="1" visible="false" />
+        <sprite name="cursorIcon" width="1" height="1" visible="false" />
+        <label name="cursorPos" width="1" height="1" visible="false" />
+        <button name="waypointIcon" width="1" height="1" visible="false" />
+        <label name="waypointDistance" width="1" height="1" visible="false" />
+      </rect>
+      <button name="switchStaticMap" width="1" height="1" visible="false" />
+      <combobox name="cbxStaticMapType" type="ComboBoxEnum`1[XUiC_MapArea+EStaticMapOverlay]" width="210" height="30" visible="false" />
+      <rect name="mapView" depth="1" width="256" height="256" pos="0,0" snap="false">
+        <sprite depth="1" name="backgroundMain" sprite="menu_empty" color="[black]" type="sliced" fillcenter="true" />
+        <texture depth="2" name="mapViewTexture" width="256" height="256" pos="0,0" material="Materials/MaskableMainmap" />
+        <sprite depth="3" width="40" height="40" pos="128,-128" pivot="center" name="crosshair" sprite="ui_game_symbol_map_player_arrow" foregroundlayer="true" />
+        <panel name="clippingPanel" depth="4" width="256" height="256" pos="0,0" clipping="SoftClip" clippingsoftness="2,2" clippingsize="256,256" clippingcenter="128,-128" />
+      </rect>
+    </window>
+  </append>
+</configs>

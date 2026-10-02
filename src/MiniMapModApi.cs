@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using UnityEngine;
@@ -28,6 +29,8 @@ internal static class MiniMapPreferences
     public static int DefaultPositionX = 20;
     public static int DefaultPositionY = -20;
     public static int PositionStep = 10;
+    public static int MapShape;
+    public static bool FogEnabled = true;
     private static string SettingsPath;
 
     public static void Initialize()
@@ -58,6 +61,8 @@ internal static class MiniMapPreferences
                 else if (key == "DefaultPositionX") DefaultPositionX = ParseInt(value, DefaultPositionX);
                 else if (key == "DefaultPositionY") DefaultPositionY = ParseInt(value, DefaultPositionY);
                 else if (key == "PositionStep") PositionStep = ParseInt(value, PositionStep);
+                else if (key == "MapShape") MapShape = ParseInt(value, MapShape);
+                else if (key == "FogEnabled") FogEnabled = ParseInt(value, FogEnabled ? 1 : 0) != 0;
             }
             Normalize();
         }
@@ -85,7 +90,9 @@ internal static class MiniMapPreferences
                 "PositionY=" + PositionY,
                 "DefaultPositionX=" + DefaultPositionX,
                 "DefaultPositionY=" + DefaultPositionY,
-                "PositionStep=" + PositionStep
+                "PositionStep=" + PositionStep,
+                "MapShape=" + MapShape,
+                "FogEnabled=" + (FogEnabled ? "1" : "0")
             });
         }
         catch (Exception exception)
@@ -102,6 +109,7 @@ internal static class MiniMapPreferences
         FrameStyle = Mathf.Clamp(FrameStyle, 0, 5);
         Brightness = Mathf.Clamp(Brightness, 0.1f, 1f);
         if (PositionStep != 1 && PositionStep != 10 && PositionStep != 100) PositionStep = 10;
+        MapShape = Mathf.Clamp(MapShape, 0, 1);
     }
 
     private static float ParseFloat(string value, float fallback)
@@ -127,6 +135,10 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private XUiController background;
     private XUiController brightnessOverlay;
     private Vector2i lastPlayerChunk = new Vector2i(int.MinValue, int.MinValue);
+    private Material originalMapMaterial;
+    private Material transparentMapMaterial;
+    private TextureWrapMode originalMapWrapMode;
+    private bool makeMapOpaqueAfterRedraw;
 
     public override void Init()
     {
@@ -138,6 +150,9 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         clippingPanel = GetChildById("clippingPanel");
         background = GetChildById("backgroundMain");
         brightnessOverlay = GetChildById("brightnessOverlay");
+        originalMapMaterial = xuiTexture.Material;
+        originalMapWrapMode = mapTexture.wrapMode;
+        InstallShapeGeometry();
         ApplyPreferences();
     }
 
@@ -150,6 +165,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         isOpen = true;
         localPlayer = xui.playerUI.entityPlayer;
         bFowMaskEnabled = !GameManager.Instance.IsEditMode();
+        bFowMaskEnabled = MiniMapPreferences.FogEnabled && bFowMaskEnabled;
         initMap();
         if (localPlayer != null)
         {
@@ -176,7 +192,13 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public override void Update(float deltaTime)
     {
+        bool redrawWasPending = bShouldRedrawMap;
         base.Update(deltaTime);
+        if (!MiniMapPreferences.FogEnabled && (redrawWasPending || makeMapOpaqueAfterRedraw))
+        {
+            MakeKnownMapOpaque();
+            makeMapOpaqueAfterRedraw = false;
+        }
         if (Input.GetKeyDown(KeyCode.F5)) ToggleSettings();
 
         if (xui.playerUI.windowManager.IsWindowOpen("miniMapSettings") && xui.playerUI.windowManager.IsWindowOpen("map"))
@@ -207,6 +229,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
                 mapMiddlePosPixel = new Vector2(player.position.x, player.position.z);
                 positionMap();
             }
+            UpdateMapRendering();
             if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f, -player.rotation.y);
         }
     }
@@ -245,8 +268,12 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         xuiTexture.Color = new Color(brightness, brightness, brightness, 1f);
         background.ViewComponent.Size = new Vector2i(innerSize, innerSize);
         background.ViewComponent.Position = new Vector2i(borderWidth, -borderWidth);
+        background.ViewComponent.IsVisible = MiniMapPreferences.FogEnabled;
+        background.ViewComponent.UiTransform.gameObject.SetActive(MiniMapPreferences.FogEnabled);
         brightnessOverlay.ViewComponent.Size = new Vector2i(innerSize, innerSize);
         brightnessOverlay.ViewComponent.Position = new Vector2i(borderWidth, -borderWidth);
+        brightnessOverlay.ViewComponent.IsVisible = MiniMapPreferences.FogEnabled;
+        brightnessOverlay.ViewComponent.UiTransform.gameObject.SetActive(MiniMapPreferences.FogEnabled);
         if (brightnessOverlay.ViewComponent is XUiV_Sprite overlay)
             overlay.Color = new Color(0f, 0f, 0f, 1f - brightness);
         crosshair.Size = new Vector2i(MiniMapPreferences.ArrowSize, MiniMapPreferences.ArrowSize);
@@ -261,6 +288,10 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         }
         zoomScale = Mathf.Lerp(6.15f, 0.7f, MiniMapPreferences.Zoom / 10f);
         targetZoomScale = zoomScale;
+        bFowMaskEnabled = MiniMapPreferences.FogEnabled && !GameManager.Instance.IsEditMode();
+        makeMapOpaqueAfterRedraw = !MiniMapPreferences.FogEnabled;
+        UpdateMapRendering();
+        MarkShapeGeometryChanged();
         bShouldRedrawMap = true;
     }
 
@@ -273,6 +304,157 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         return new Color32(35, 90, 190, 235);
     }
 
+    private void InstallShapeGeometry()
+    {
+        xuiTexture.uiTexture.onPostFill = FillCircleWhenSelected;
+        if (background.ViewComponent is XUiV_Sprite backgroundSprite)
+            backgroundSprite.Sprite.onPostFill = FillCircleWhenSelected;
+        if (brightnessOverlay.ViewComponent is XUiV_Sprite overlaySprite)
+            overlaySprite.Sprite.onPostFill = FillCircleWhenSelected;
+        if (frame.ViewComponent is XUiV_Sprite frameSprite)
+            frameSprite.Sprite.onPostFill = FillCircleFrameWhenSelected;
+    }
+
+    private void UpdateMapRendering()
+    {
+        if (MiniMapPreferences.FogEnabled)
+        {
+            xuiTexture.GlobalOpacityModifier = 1f;
+            if (originalMapMaterial == null && xuiTexture.Material != transparentMapMaterial)
+                originalMapMaterial = xuiTexture.Material;
+            if (originalMapMaterial != null && xuiTexture.Material != originalMapMaterial)
+                xuiTexture.Material = originalMapMaterial;
+            xuiTexture.UVRect = new Rect(0f, 0f, 1f, 1f);
+            mapTexture.wrapMode = originalMapWrapMode;
+            return;
+        }
+
+        xuiTexture.GlobalOpacityModifier = 0f;
+        if (xuiTexture.Material != null && xuiTexture.Material != transparentMapMaterial)
+            originalMapMaterial = xuiTexture.Material;
+        if (transparentMapMaterial == null)
+        {
+            Shader shader = GlobalAssets.FindShader("Unlit/Transparent Colored");
+            if (shader == null)
+            {
+                Debug.LogError("[MiniMap_Mod] Transparent map shader not found");
+                return;
+            }
+            transparentMapMaterial = new Material(shader);
+            transparentMapMaterial.name = "MiniMap_Mod.TransparentMap";
+        }
+        if (xuiTexture.Material != transparentMapMaterial) xuiTexture.Material = transparentMapMaterial;
+        mapTexture.wrapMode = TextureWrapMode.Repeat;
+        xuiTexture.UVRect = new Rect(mapPos.x, mapPos.y, mapScale, mapScale);
+    }
+
+    private void MakeKnownMapOpaque()
+    {
+        Color32[] pixels = mapTexture.GetPixels32();
+        bool changed = false;
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            if (pixels[i].a > 0 && pixels[i].a < 255)
+            {
+                pixels[i].a = 255;
+                changed = true;
+            }
+        }
+        if (!changed) return;
+        mapTexture.SetPixels32(pixels);
+        mapTexture.Apply(false, false);
+    }
+
+    private void MarkShapeGeometryChanged()
+    {
+        xuiTexture.uiTexture.MarkAsChanged();
+        if (background.ViewComponent is XUiV_Sprite backgroundSprite) backgroundSprite.Sprite.MarkAsChanged();
+        if (brightnessOverlay.ViewComponent is XUiV_Sprite overlaySprite) overlaySprite.Sprite.MarkAsChanged();
+        if (frame.ViewComponent is XUiV_Sprite frameSprite) frameSprite.Sprite.MarkAsChanged();
+    }
+
+    private static void FillCircleWhenSelected(UIWidget widget, int offset, List<Vector3> verts, List<Vector2> uvs, List<Color> colors)
+    {
+        if (MiniMapPreferences.MapShape != 1 || verts.Count <= offset || uvs.Count <= offset || colors.Count <= offset) return;
+
+        float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
+        float minU = float.MaxValue, maxU = float.MinValue, minV = float.MaxValue, maxV = float.MinValue;
+        Color color = colors[offset];
+        for (int i = offset; i < verts.Count; i++)
+        {
+            minX = Mathf.Min(minX, verts[i].x); maxX = Mathf.Max(maxX, verts[i].x);
+            minY = Mathf.Min(minY, verts[i].y); maxY = Mathf.Max(maxY, verts[i].y);
+            minU = Mathf.Min(minU, uvs[i].x); maxU = Mathf.Max(maxU, uvs[i].x);
+            minV = Mathf.Min(minV, uvs[i].y); maxV = Mathf.Max(maxV, uvs[i].y);
+        }
+        verts.RemoveRange(offset, verts.Count - offset);
+        uvs.RemoveRange(offset, uvs.Count - offset);
+        colors.RemoveRange(offset, colors.Count - offset);
+
+        const int strips = 512;
+        for (int strip = 0; strip < strips; strip++)
+        {
+            float y0 = strip / (float)strips;
+            float y1 = (strip + 1) / (float)strips;
+            float ny0 = y0 * 2f - 1f;
+            float ny1 = y1 * 2f - 1f;
+            float halfWidth = Mathf.Min(Mathf.Sqrt(Mathf.Max(0f, 1f - ny0 * ny0)), Mathf.Sqrt(Mathf.Max(0f, 1f - ny1 * ny1))) * 0.5f;
+            float x0 = 0.5f - halfWidth;
+            float x1 = 0.5f + halfWidth;
+            AddQuad(verts, uvs, colors, minX, maxX, minY, maxY, minU, maxU, minV, maxV, x0, x1, y0, y1, color);
+        }
+    }
+
+    private static void FillCircleFrameWhenSelected(UIWidget widget, int offset, List<Vector3> verts, List<Vector2> uvs, List<Color> colors)
+    {
+        if (MiniMapPreferences.MapShape != 1 || verts.Count <= offset || uvs.Count <= offset || colors.Count <= offset) return;
+
+        float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
+        Vector2 sampleUv = uvs[offset];
+        Color color = colors[offset];
+        for (int i = offset; i < verts.Count; i++)
+        {
+            minX = Mathf.Min(minX, verts[i].x); maxX = Mathf.Max(maxX, verts[i].x);
+            minY = Mathf.Min(minY, verts[i].y); maxY = Mathf.Max(maxY, verts[i].y);
+        }
+        verts.RemoveRange(offset, verts.Count - offset);
+        uvs.RemoveRange(offset, uvs.Count - offset);
+        colors.RemoveRange(offset, colors.Count - offset);
+
+        const int segments = 512;
+        float centerX = (minX + maxX) * 0.5f;
+        float centerY = (minY + maxY) * 0.5f;
+        float outerX = (maxX - minX) * 0.5f;
+        float outerY = (maxY - minY) * 0.5f;
+        float innerX = Mathf.Max(0f, outerX - 5f);
+        float innerY = Mathf.Max(0f, outerY - 5f);
+        for (int segment = 0; segment < segments; segment++)
+        {
+            float a0 = segment * Mathf.PI * 2f / segments;
+            float a1 = (segment + 1) * Mathf.PI * 2f / segments;
+            verts.Add(new Vector3(centerX + Mathf.Cos(a0) * outerX, centerY + Mathf.Sin(a0) * outerY));
+            verts.Add(new Vector3(centerX + Mathf.Cos(a0) * innerX, centerY + Mathf.Sin(a0) * innerY));
+            verts.Add(new Vector3(centerX + Mathf.Cos(a1) * innerX, centerY + Mathf.Sin(a1) * innerY));
+            verts.Add(new Vector3(centerX + Mathf.Cos(a1) * outerX, centerY + Mathf.Sin(a1) * outerY));
+            for (int i = 0; i < 4; i++) { uvs.Add(sampleUv); colors.Add(color); }
+        }
+    }
+
+    private static void AddQuad(List<Vector3> verts, List<Vector2> uvs, List<Color> colors,
+        float minX, float maxX, float minY, float maxY, float minU, float maxU, float minV, float maxV,
+        float x0, float x1, float y0, float y1, Color color)
+    {
+        verts.Add(new Vector3(Mathf.Lerp(minX, maxX, x0), Mathf.Lerp(minY, maxY, y0)));
+        verts.Add(new Vector3(Mathf.Lerp(minX, maxX, x0), Mathf.Lerp(minY, maxY, y1)));
+        verts.Add(new Vector3(Mathf.Lerp(minX, maxX, x1), Mathf.Lerp(minY, maxY, y1)));
+        verts.Add(new Vector3(Mathf.Lerp(minX, maxX, x1), Mathf.Lerp(minY, maxY, y0)));
+        uvs.Add(new Vector2(Mathf.Lerp(minU, maxU, x0), Mathf.Lerp(minV, maxV, y0)));
+        uvs.Add(new Vector2(Mathf.Lerp(minU, maxU, x0), Mathf.Lerp(minV, maxV, y1)));
+        uvs.Add(new Vector2(Mathf.Lerp(minU, maxU, x1), Mathf.Lerp(minV, maxV, y1)));
+        uvs.Add(new Vector2(Mathf.Lerp(minU, maxU, x1), Mathf.Lerp(minV, maxV, y0)));
+        for (int i = 0; i < 4; i++) colors.Add(color);
+    }
+
     public override void updateMapObjects() { }
 
     public override void Cleanup()
@@ -283,6 +465,11 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             playerCamera = null;
         }
         if (Instance == this) Instance = null;
+        if (transparentMapMaterial != null)
+        {
+            UnityEngine.Object.Destroy(transparentMapMaterial);
+            transparentMapMaterial = null;
+        }
         base.Cleanup();
     }
 }
@@ -304,6 +491,8 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("frameCycle", delegate { MiniMapPreferences.FrameStyle = (MiniMapPreferences.FrameStyle + 1) % FrameNames.Length; Changed(); });
         Bind("brightnessDown", delegate { MiniMapPreferences.Brightness -= 0.1f; Changed(); });
         Bind("brightnessUp", delegate { MiniMapPreferences.Brightness += 0.1f; Changed(); });
+        Bind("mapShape", delegate { MiniMapPreferences.MapShape = 1 - MiniMapPreferences.MapShape; Changed(); });
+        Bind("fogToggle", delegate { MiniMapPreferences.FogEnabled = !MiniMapPreferences.FogEnabled; Changed(); });
         Bind("positionLeft", delegate { MiniMapPreferences.PositionX -= MiniMapPreferences.PositionStep; Changed(); });
         Bind("positionRight", delegate { MiniMapPreferences.PositionX += MiniMapPreferences.PositionStep; Changed(); });
         Bind("positionUp", delegate { MiniMapPreferences.PositionY += MiniMapPreferences.PositionStep; Changed(); });
@@ -348,6 +537,8 @@ public class XUiC_MiniMapSettings : XUiController
         SetLabel("sizeValue", MiniMapPreferences.MapSize.ToString(CultureInfo.InvariantCulture));
         SetButtonText("frameCycle", FrameNames[MiniMapPreferences.FrameStyle]);
         SetLabel("brightnessValue", Mathf.RoundToInt(MiniMapPreferences.Brightness * 100f) + "%");
+        SetButtonText("mapShape", MiniMapPreferences.MapShape == 1 ? "Kreis" : "Quadrat");
+        SetButtonText("fogToggle", MiniMapPreferences.FogEnabled ? "AN" : "AUS");
         SetButtonText("positionStep1", MiniMapPreferences.PositionStep == 1 ? "[1 px]" : "1 px");
         SetButtonText("positionStep10", MiniMapPreferences.PositionStep == 10 ? "[10 px]" : "10 px");
         SetButtonText("positionStep100", MiniMapPreferences.PositionStep == 100 ? "[100 px]" : "100 px");

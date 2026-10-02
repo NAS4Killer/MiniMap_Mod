@@ -2,7 +2,7 @@
 
 Client-Mod fuer 7 Days to Die 3.2.
 
-Version: **0.0.3.0**
+Version: **0.0.3.8**
 
 ## Erstes Ziel
 
@@ -29,7 +29,6 @@ Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
 
 ## Zukunfts-ToDo
 
-- Runde MiniMap
 - Transparenter Verlauf an den Kartenraendern
 - Karte Norden
 

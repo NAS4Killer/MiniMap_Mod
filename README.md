@@ -2,7 +2,7 @@
 
 Client-Mod fuer 7 Days to Die 3.2.
 
-Version: **0.0.2.0**
+Version: **0.0.3.0**
 
 ## Erstes Ziel
 
@@ -25,5 +25,12 @@ Die erzeugte DLL wird nach `bin/Debug/netstandard2.1/` geschrieben.
 ## Versionierung
 
 Das Projekt verwendet immer vier Stellen nach dem Schema `A.B.C.D`. Die Version steht im Code und im Commit-Betreff.
+Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
+
+## Zukunfts-ToDo
+
+- Runde MiniMap
+- Transparenter Verlauf an den Kartenraendern
+- Karte Norden
 
 

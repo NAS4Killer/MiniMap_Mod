@@ -22,8 +22,8 @@
         <sprite depth="5" name="brightnessOverlay" sprite="menu_empty" color="0,0,0,0" type="sliced" fillcenter="true" width="256" height="256" />
       </rect>
     </window>
-    <window name="windowMiniMapSettings" width="520" height="440" pos="-260,220" anchor="Center" controller="MiniMapSettings, MiniMap_Mod">
-      <sprite depth="0" sprite="menu_empty" color="18,18,18,245" type="sliced" fillcenter="true" width="520" height="440" />
+    <window name="windowMiniMapSettings" width="520" height="560" pos="-260,280" anchor="Center" controller="MiniMapSettings, MiniMap_Mod">
+      <sprite depth="0" sprite="menu_empty" color="18,18,18,245" type="sliced" fillcenter="true" width="520" height="560" />
       <label depth="1" pos="24,-20" width="472" height="38" text="MINIMAP-OPTIONEN" font_size="30" justify="center" color="255,255,255,255" />
 
       <label pos="30,-78" width="260" height="32" text="Minimap" font_size="24" color="255,255,255,255" />
@@ -52,8 +52,21 @@
       <label name="brightnessValue" pos="380,-314" width="60" height="34" text="100%" font_size="22" justify="center" color="255,255,255,255" />
       <simplebutton name="brightnessUp" pos="445,-314" width="45" height="34" caption="+" font_size="24" />
 
-      <label pos="30,-360" width="270" height="28" text="Öffnen/Schließen: F5" font_size="18" color="180,180,180,255" />
-      <simplebutton name="miniMapClose" pos="180,-374" width="160" height="40" caption="SCHLIESSEN" font_size="21" />
+      <label pos="30,-366" width="220" height="32" text="Position" font_size="24" color="255,255,255,255" />
+      <simplebutton name="positionLeft" pos="238,-362" width="36" height="34" caption="&lt;" font_size="22" />
+      <simplebutton name="positionUp" pos="278,-362" width="36" height="34" caption="^" font_size="22" />
+      <simplebutton name="positionDown" pos="318,-362" width="36" height="34" caption="v" font_size="22" />
+      <simplebutton name="positionRight" pos="358,-362" width="36" height="34" caption="&gt;" font_size="22" />
+      <simplebutton name="positionReset" pos="398,-362" width="42" height="34" caption="R" font_size="20" />
+      <simplebutton name="positionSave" pos="446,-362" width="42" height="34" caption="S" font_size="20" />
+
+      <label pos="30,-410" width="220" height="32" text="Schrittweite" font_size="24" color="255,255,255,255" />
+      <simplebutton name="positionStep1" pos="278,-406" width="64" height="34" caption="1 px" font_size="19" />
+      <simplebutton name="positionStep10" pos="350,-406" width="64" height="34" caption="10 px" font_size="19" />
+      <simplebutton name="positionStep100" pos="422,-406" width="68" height="34" caption="100 px" font_size="18" />
+
+      <label pos="30,-456" width="270" height="28" text="Öffnen/Schließen: F5" font_size="18" color="180,180,180,255" />
+      <simplebutton name="miniMapClose" pos="180,-490" width="160" height="40" caption="SCHLIESSEN" font_size="21" />
     </window>
   </append>
 </configs>

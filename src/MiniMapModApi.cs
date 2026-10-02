@@ -23,6 +23,11 @@ internal static class MiniMapPreferences
     public static int MapSize = 256;
     public static int FrameStyle;
     public static float Brightness = 1f;
+    public static int PositionX = 20;
+    public static int PositionY = -20;
+    public static int DefaultPositionX = 20;
+    public static int DefaultPositionY = -20;
+    public static int PositionStep = 10;
     private static string SettingsPath;
 
     public static void Initialize()
@@ -48,6 +53,11 @@ internal static class MiniMapPreferences
                 else if (key == "MapSize") MapSize = ParseInt(value, MapSize);
                 else if (key == "FrameStyle") FrameStyle = ParseInt(value, FrameStyle);
                 else if (key == "Brightness") Brightness = ParseFloat(value, Brightness);
+                else if (key == "PositionX") PositionX = ParseInt(value, PositionX);
+                else if (key == "PositionY") PositionY = ParseInt(value, PositionY);
+                else if (key == "DefaultPositionX") DefaultPositionX = ParseInt(value, DefaultPositionX);
+                else if (key == "DefaultPositionY") DefaultPositionY = ParseInt(value, DefaultPositionY);
+                else if (key == "PositionStep") PositionStep = ParseInt(value, PositionStep);
             }
             Normalize();
         }
@@ -70,7 +80,12 @@ internal static class MiniMapPreferences
                 "ArrowSize=" + ArrowSize,
                 "MapSize=" + MapSize,
                 "FrameStyle=" + FrameStyle,
-                "Brightness=" + Brightness.ToString("0.0", CultureInfo.InvariantCulture)
+                "Brightness=" + Brightness.ToString("0.0", CultureInfo.InvariantCulture),
+                "PositionX=" + PositionX,
+                "PositionY=" + PositionY,
+                "DefaultPositionX=" + DefaultPositionX,
+                "DefaultPositionY=" + DefaultPositionY,
+                "PositionStep=" + PositionStep
             });
         }
         catch (Exception exception)
@@ -83,9 +98,10 @@ internal static class MiniMapPreferences
     {
         Zoom = Mathf.Clamp(Mathf.Round(Zoom / 2f) * 2f, 0f, 10f);
         ArrowSize = Mathf.Clamp(ArrowSize, 16, 80);
-        MapSize = Mathf.Clamp(MapSize, 160, 480);
+        MapSize = Mathf.Clamp(MapSize, 128, 480);
         FrameStyle = Mathf.Clamp(FrameStyle, 0, 5);
         Brightness = Mathf.Clamp(Brightness, 0.1f, 1f);
+        if (PositionStep != 1 && PositionStep != 10 && PositionStep != 100) PositionStep = 10;
     }
 
     private static float ParseFloat(string value, float fallback)
@@ -110,6 +126,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private XUiController clippingPanel;
     private XUiController background;
     private XUiController brightnessOverlay;
+    private Vector2i lastPlayerChunk = new Vector2i(int.MinValue, int.MinValue);
 
     public override void Init()
     {
@@ -173,6 +190,13 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         EntityPlayerLocal player = GameManager.Instance?.World?.GetPrimaryPlayer();
         if (player != null)
         {
+            Vector2i currentPlayerChunk = World.toChunkXZ(player.position);
+            if (currentPlayerChunk != lastPlayerChunk)
+            {
+                lastPlayerChunk = currentPlayerChunk;
+                bShouldRedrawMap = true;
+            }
+
             if (!centeredOnce)
             {
                 PositionMapAt(player.position);
@@ -183,7 +207,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
                 mapMiddlePosPixel = new Vector2(player.position.x, player.position.z);
                 positionMap();
             }
-            if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f, player.rotation.y);
+            if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f, -player.rotation.y);
         }
     }
 
@@ -204,8 +228,12 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         int borderWidth = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
         int innerSize = size - borderWidth * 2;
         float brightness = MiniMapPreferences.Brightness;
+        Vector2i screenSize = xui.GetXUiScreenSize();
+        MiniMapPreferences.PositionX = Mathf.Clamp(MiniMapPreferences.PositionX, 0, Math.Max(0, screenSize.x - size));
+        MiniMapPreferences.PositionY = Mathf.Clamp(MiniMapPreferences.PositionY, -Math.Max(0, screenSize.y - size), 0);
 
         ViewComponent.Size = new Vector2i(size, size);
+        ViewComponent.Position = new Vector2i(MiniMapPreferences.PositionX, MiniMapPreferences.PositionY);
         mapView.ViewComponent.Size = new Vector2i(size, size);
         mapView.ViewComponent.IsVisible = MiniMapPreferences.Enabled;
         frame.ViewComponent.Size = new Vector2i(size, size);
@@ -276,6 +304,15 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("frameCycle", delegate { MiniMapPreferences.FrameStyle = (MiniMapPreferences.FrameStyle + 1) % FrameNames.Length; Changed(); });
         Bind("brightnessDown", delegate { MiniMapPreferences.Brightness -= 0.1f; Changed(); });
         Bind("brightnessUp", delegate { MiniMapPreferences.Brightness += 0.1f; Changed(); });
+        Bind("positionLeft", delegate { MiniMapPreferences.PositionX -= MiniMapPreferences.PositionStep; Changed(); });
+        Bind("positionRight", delegate { MiniMapPreferences.PositionX += MiniMapPreferences.PositionStep; Changed(); });
+        Bind("positionUp", delegate { MiniMapPreferences.PositionY += MiniMapPreferences.PositionStep; Changed(); });
+        Bind("positionDown", delegate { MiniMapPreferences.PositionY -= MiniMapPreferences.PositionStep; Changed(); });
+        Bind("positionReset", delegate { MiniMapPreferences.PositionX = MiniMapPreferences.DefaultPositionX; MiniMapPreferences.PositionY = MiniMapPreferences.DefaultPositionY; Changed(); });
+        Bind("positionSave", delegate { MiniMapPreferences.DefaultPositionX = MiniMapPreferences.PositionX; MiniMapPreferences.DefaultPositionY = MiniMapPreferences.PositionY; Changed(); });
+        Bind("positionStep1", delegate { MiniMapPreferences.PositionStep = 1; Changed(); });
+        Bind("positionStep10", delegate { MiniMapPreferences.PositionStep = 10; Changed(); });
+        Bind("positionStep100", delegate { MiniMapPreferences.PositionStep = 100; Changed(); });
         Bind("miniMapClose", delegate { xui.playerUI.windowManager.Close("miniMapSettings"); });
         RefreshValues();
     }
@@ -299,6 +336,7 @@ public class XUiC_MiniMapSettings : XUiController
     {
         MiniMapPreferences.Save();
         XUiC_MiniMapArea.Instance?.ApplyPreferences();
+        MiniMapPreferences.Save();
         RefreshValues();
     }
 
@@ -310,6 +348,9 @@ public class XUiC_MiniMapSettings : XUiController
         SetLabel("sizeValue", MiniMapPreferences.MapSize.ToString(CultureInfo.InvariantCulture));
         SetButtonText("frameCycle", FrameNames[MiniMapPreferences.FrameStyle]);
         SetLabel("brightnessValue", Mathf.RoundToInt(MiniMapPreferences.Brightness * 100f) + "%");
+        SetButtonText("positionStep1", MiniMapPreferences.PositionStep == 1 ? "[1 px]" : "1 px");
+        SetButtonText("positionStep10", MiniMapPreferences.PositionStep == 10 ? "[10 px]" : "10 px");
+        SetButtonText("positionStep100", MiniMapPreferences.PositionStep == 100 ? "[100 px]" : "100 px");
     }
 
     private void SetLabel(string id, string value)

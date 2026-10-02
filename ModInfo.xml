@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+  <Name value="MiniMap_Mod" />
+  <DisplayName value="MiniMap Mod" />
+  <Description value="Clientseitige MiniMap fuer den lokalen Spieler." />
+  <Author value="NAS4Killer" />
+  <Version value="0.0.0.1" />
+</xml>
+

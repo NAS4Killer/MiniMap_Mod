@@ -1,0 +1,13 @@
+MiniMap_Mod v0.0.5.0
+
+- Echte Versionsprüfung gegen das neueste stabile GitHub-Release.
+- Neuere Version wird im F5-Menü angezeigt.
+- UPDATE INSTALLIEREN lädt und prüft das Paket.
+- Automatische Installation unter Windows nach vollständigem Spielende.
+- SHA-256-Prüfung, sichere Dateiliste, Metadatenprüfung und Sicherung der bisherigen Dateien.
+- Wiederherstellung bei Schreibfehlern; kein automatischer Spielabbruch oder Neustart.
+- F5-Hinweis aus dem Menü entfernt und Installations-/Bedienungsanleitung ergänzt.
+
+Technische Tests bestanden: Versionsvergleich, echte GitHub-Abfrage,
+ZIP-Validierung und Installation/Wiederherstellung in getrennten Testordnern.
+Der vollständige Ingame-Updatetest von 0.0.4.4 auf 0.0.5.0 steht noch aus.

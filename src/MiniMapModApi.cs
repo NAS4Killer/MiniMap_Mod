@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.0.4.2";
+    public const string Version = "0.0.5.0";
     public static bool Enabled = true;
     public static float Zoom = 1f;
     public static int ArrowSize = 40;
@@ -603,7 +603,7 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("positionStep10", delegate { MiniMapPreferences.PositionStep = 10; Changed(); });
         Bind("positionStep100", delegate { MiniMapPreferences.PositionStep = 100; Changed(); });
         Bind("miniMapClose", delegate { xui.playerUI.windowManager.Close("miniMapSettings"); });
-        Bind("miniMapUpdate", delegate { Application.OpenURL("https://github.com/NAS4Killer/MiniMap_Mod/releases/latest"); });
+        Bind("miniMapUpdate", MiniMapUpdater.Press);
         RefreshValues();
     }
 
@@ -611,6 +611,13 @@ public class XUiC_MiniMapSettings : XUiController
     {
         base.OnOpen();
         RefreshValues();
+    }
+
+    public override void Update(float deltaTime)
+    {
+        base.Update(deltaTime);
+        SetButtonText("miniMapUpdate", MiniMapUpdater.Caption);
+        SetLabel("miniMapUpdateStatus", MiniMapUpdater.Status);
     }
 
     private void Bind(string id, Action action)

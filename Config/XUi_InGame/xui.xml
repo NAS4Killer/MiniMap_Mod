@@ -1,5 +1,10 @@
 <configs>
   <append xpath="/xui/window_group[@name='compass']">
-    <window name="windowMiniMap" anchor="TopRight" />
+    <window name="windowMiniMap" anchor="TopLeft" />
+  </append>
+  <append xpath="/xui">
+    <window_group name="miniMapSettings" defaultselected="miniMapClose">
+      <window name="windowMiniMapSettings" anchor="Center" />
+    </window_group>
   </append>
 </configs>

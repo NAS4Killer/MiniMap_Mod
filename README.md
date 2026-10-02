@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.0.5.1**
+Version: **0.0.5.2**
 
 ## Installation
 
@@ -33,6 +33,7 @@ Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
 - **Position:** vier Richtungsknöpfe; Schrittweite 1, 10 oder 100 Pixel. **S** speichert die Position als Standard, **R** stellt diesen Standard wieder her.
 - **Version:** zeigt die installierte Mod-Version.
 - **Github:** öffnet die Projektseite, wenn kein Update verfügbar ist. Beim ersten Öffnen des Menüs wird automatisch geprüft. Ein neues Release erscheint als grünes **Download + Version**, nach dem Download als grünes **Installieren + Version**.
+- **Release Notes:** erscheint unter dem Updatebutton, wenn ein Update verfügbar ist, und öffnet die Releasebeschreibung genau dieser Version auf GitHub.
 
 Andere Spieler und Symbole der originalen Karte werden noch nicht angezeigt.
 
@@ -79,7 +80,7 @@ Versionsnummer. Gleiche oder ältere Releases werden nicht installiert.
 **Download + Version** lädt das Paket herunter und prüft Größe, SHA-256-Prüfsumme,
 Ordnerstruktur, enthaltene Dateien, Mod-Autor und Version. Anschließend
 **Installieren + Version** anklicken. Der Button zeigt wieder **Github**,
-darunter **Bitte neu starten**. Dann das Spiel vollständig beenden.
+darunter rot **Spiel neu starten**. Dann das Spiel vollständig beenden.
 Ein unsichtbarer Windows-Helfer wartet auf das Spielende, sichert die bisherigen
 Dateien und installiert anschließend das Update. Das Spiel wird weder beendet
 noch neu gestartet. Bei Schreibfehlern versucht der Helfer, die alten Dateien

@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.0.5.1";
+    public const string Version = "0.0.5.2";
     public static bool Enabled = true;
     public static float Zoom = 1f;
     public static int ArrowSize = 40;
@@ -604,6 +604,7 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("positionStep100", delegate { MiniMapPreferences.PositionStep = 100; Changed(); });
         Bind("miniMapClose", delegate { xui.playerUI.windowManager.Close("miniMapSettings"); });
         Bind("miniMapUpdate", delegate { if (MiniMapUpdater.Press()) Application.OpenURL("https://github.com/NAS4Killer/MiniMap_Mod"); });
+        Bind("miniMapReleaseNotes", delegate { string url = MiniMapUpdater.ReleaseNotesUrl; if (url != null) Application.OpenURL(url); });
         RefreshValues();
     }
 
@@ -621,6 +622,10 @@ public class XUiC_MiniMapSettings : XUiController
         if (GetChildById("miniMapUpdate")?.GetChildById("btnLabel")?.ViewComponent is XUiV_Label updateLabel)
             updateLabel.Color = MiniMapUpdater.IsGreen ? new Color32(70, 230, 70, 255) : Color.white;
         SetLabel("miniMapUpdateStatus", MiniMapUpdater.Status);
+        if (GetChildById("miniMapUpdateStatus")?.ViewComponent is XUiV_Label updateStatus)
+            updateStatus.Color = MiniMapUpdater.NeedsRestart ? new Color32(255, 60, 60, 255) : new Color32(180, 180, 180, 255);
+        XUiController releaseNotes = GetChildById("miniMapReleaseNotes");
+        if (releaseNotes?.ViewComponent != null) releaseNotes.ViewComponent.IsVisible = MiniMapUpdater.ReleaseNotesUrl != null;
     }
 
     private void Bind(string id, Action action)

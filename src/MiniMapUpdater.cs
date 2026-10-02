@@ -24,6 +24,11 @@ internal static class MiniMapUpdater
     private static volatile string status = "";
     public static string Status => status;
     public static bool IsGreen { get { lock (Gate) return available != null && !pending; } }
+    public static bool NeedsRestart { get { lock (Gate) return pending; } }
+    public static string ReleaseNotesUrl
+    {
+        get { lock (Gate) return available == null || pending ? null : Repository + "/releases/tag/" + available.tag_name; }
+    }
     public static string Caption
     {
         get
@@ -257,7 +262,7 @@ internal static class MiniMapUpdater
         if (process == null) throw new IOException("Installer konnte nicht gestartet werden.");
         process.Dispose();
         lock (Gate) pending = true;
-        status = "Bitte neu starten";
+        status = "Spiel neu starten";
     }
 
     private static string Quote(string value) => "'" + value.Replace("'", "''") + "'";

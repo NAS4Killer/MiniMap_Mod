@@ -2,7 +2,7 @@
 
 Client-Mod fuer 7 Days to Die 3.2.
 
-Version: **0.0.3.8**
+Version: **0.0.4.0**
 
 ## Erstes Ziel
 
@@ -29,7 +29,6 @@ Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
 
 ## Zukunfts-ToDo
 
-- Transparenter Verlauf an den Kartenraendern
-- Karte Norden
+- Aktuell keine offenen Wunschpunkte.
 
 

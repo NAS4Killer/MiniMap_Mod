@@ -1,0 +1,5 @@
+MiniMap_Mod v0.0.5.3
+
+- Testversion zur Prüfung von Update-Erkennung, Release-Notes-Button und automatischer Installation.
+- Versionsanzeigen auf 0.0.5.3 aktualisiert.
+- Keine Funktionsänderungen gegenüber 0.0.5.2.

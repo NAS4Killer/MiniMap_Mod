@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.0.5.2";
+    public const string Version = "0.0.5.3";
     public static bool Enabled = true;
     public static float Zoom = 1f;
     public static int ArrowSize = 40;

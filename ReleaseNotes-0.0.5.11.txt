@@ -1,0 +1,7 @@
+MiniMap_Mod 0.0.5.11
+Mod-Autor: NAS4Killer
+
+- Farbfüllung der Rahmenauswahl direkt über die Farb-Eigenschaften der Standardbuttons korrigiert.
+- Schwarz, Weiß, Grün und Rot färben die gesamte Buttonfläche.
+- Rahmenlos erhält die erlaubte neutrale graue Buttonfüllung; der Kartenrahmen selbst bleibt deaktiviert.
+- Blaue Auswahlmarkierung wird unabhängig von der Buttonfüllung aktualisiert.

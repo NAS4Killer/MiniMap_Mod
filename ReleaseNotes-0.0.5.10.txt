@@ -1,0 +1,9 @@
+MiniMap_Mod 0.0.5.10
+Mod-Autor: NAS4Killer
+
+- Quadratischen Kartenrahmen korrigiert: nur ein 5-Pixel-Rand statt gefärbter Kartenfläche.
+- Rahmenwahl und Schrittweite verwenden wieder dieselben Standardbuttons wie die übrigen Optionen.
+- Deutlicher blauer 3-Pixel-Auswahlrand mit eigener hohler Geometrie; keine blaue Buttonfüllung.
+- Rahmenlos-Auswahl mit vollständig transparentem Buttoninhalt.
+- Hoch-/Runter-Symbole etwas nach unten versetzt.
+- Hinweise beim Überfahren von R und S unter GitHub hinzugefügt.

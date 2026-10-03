@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.0.5.3**
+Version: **0.0.6.0**
 
 ## Installation
 
@@ -17,25 +17,31 @@ Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
 
 ## Bedienung
 
-**F5** öffnet und schließt das Optionsmenü. Änderungen werden gespeichert.
+**F5** öffnet und schließt das Optionsmenü. **ESC** schließt es ebenfalls. Änderungen werden gespeichert.
 
 - **Minimap:** an/aus. Im Escape-Menü wird die Karte ausgeblendet.
 - **Zoomfaktor:** 0, 2, 4, 6, 8 oder 10; größere Werte zoomen näher heran.
 - **Spielerpfeil:** Größe 16 bis 80, unabhängig von der Kartenhelligkeit.
 - **Minimap-Größe:** 128 bis 480.
-- **Rahmen:** rahmenlos, Schwarz, Weiß, Rot, Grün oder Blau.
+- **Rahmen:** fünf direkte Farbbuttons für Schwarz, Weiß, Grün, Rot und Rahmenlos. Ein blauer Buttonrahmen markiert die Auswahl. Der Rahmenlos-Button hat einen neutral grauen Inhalt.
 - **Mapform:** Kreis oder Quadrat.
 - **Kriegsnebel:** an zeigt unbekannte Bereiche grau; aus macht diese vollständig transparent. Unbekanntes Gelände wird dadurch nicht aufgedeckt. Die Erkundung wird beim Chunkwechsel aktualisiert.
 - **Helligkeit:** 10 bis 100 Prozent, nur für die Karte.
-- **Kartentransparenz:** an/aus; 0 bis 50 Prozent in 5-Prozent-Schritten. 0 Prozent bedeutet deckend.
+- **Kartentransparenz:** an/aus; 1 bis 10 Prozent in 1-Prozent-Schritten. Aus bedeutet vollständig deckend. Alte Prozentwerte werden beim Laden auf den neuen Bereich begrenzt.
 - **Randverlauf:** an/aus. Mit Kriegsnebel am äußeren Kartenrand, ohne Kriegsnebel am Übergang zwischen erkundetem und unbekanntem Gelände.
 - **Karte Norden:** an hält Norden oben; aus dreht die Karte und hält den Spielerpfeil nach oben.
-- **Position:** vier Richtungsknöpfe; Schrittweite 1, 10 oder 100 Pixel. **S** speichert die Position als Standard, **R** stellt diesen Standard wieder her.
+- **Koordinaten:** an/aus; eine Zeile über oder unter der Karte. X und Y zeigen die Kartenposition, Z die Höhe in Metern.
+- **N–S–O–W:** an/aus; Himmelsrichtungen am Kartenrand. Bei drehender Karte folgen ihre Positionen der Kartenausrichtung.
+- **Position:** vier Richtungsknöpfe mit ▲ ▼ ◄ ►; Schrittweite 1, 10 oder 100 Pixel. Ein blauer Buttonrahmen markiert die Schrittweite. **S** speichert die Position als Standard, **R** stellt diesen Standard wieder her. Beim Überfahren von R oder S erscheint ein Erklärungstext unter GitHub.
 - **Version:** zeigt die installierte Mod-Version.
 - **Github:** öffnet die Projektseite, wenn kein Update verfügbar ist. Beim ersten Öffnen des Menüs wird automatisch geprüft. Ein neues Release erscheint als grünes **Download + Version**, nach dem Download als grünes **Installieren + Version**.
 - **Release Notes:** erscheint unter dem Updatebutton, wenn ein Update verfügbar ist, und öffnet die Releasebeschreibung genau dieser Version auf GitHub.
 
 Andere Spieler und Symbole der originalen Karte werden noch nicht angezeigt.
+
+Die sichtbare Kategorie **Sonstiges** enthält Karte Norden, Himmelsrichtungen,
+Randverlauf und Kriegsnebel. Alle Bedienzeilen haben dieselbe Gesamtbreite;
+die Positionstasten und die Schrittweitentasten sind innerhalb ihrer Zeile gleich breit.
 
 ## Wenn keine MiniMap erscheint
 

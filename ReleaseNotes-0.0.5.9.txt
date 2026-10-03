@@ -1,0 +1,9 @@
+MiniMap_Mod 0.0.5.9
+Mod-Autor: NAS4Killer
+
+- Auswahlrahmen kräftiger blau; nur der Rand wird gefärbt, nicht die Buttonfläche.
+- Schrittweitenbeschriftung vertikal mittig positioniert.
+- Kartentransparenz auf 1 bis 10 Prozent in 1-Prozent-Schritten geändert; deaktiviert bleibt die Karte vollständig deckend.
+- Vorhandene Transparenzwerte auf den neuen Bereich begrenzt.
+- Positionstasten für hoch und runter verwenden kleinere Dreiecke; links und rechts bleiben unverändert.
+- Sonstiges zeigt Beschriftungen links und separate An/Aus-Buttons rechts.

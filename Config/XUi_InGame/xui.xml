@@ -3,7 +3,7 @@
     <window name="windowMiniMap" anchor="TopLeft" />
   </append>
   <append xpath="/xui">
-    <window_group name="miniMapSettings" defaultselected="miniMapClose">
+    <window_group name="miniMapSettings" defaultselected="miniMapUpdate">
       <window name="windowMiniMapSettings" anchor="Center" />
     </window_group>
   </append>

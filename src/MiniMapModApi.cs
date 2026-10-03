@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.0.5.3";
+    public const string Version = "0.0.6.0";
     public static bool Enabled = true;
     public static float Zoom = 1f;
     public static int ArrowSize = 40;
@@ -33,9 +33,12 @@ internal static class MiniMapPreferences
     public static int MapShape;
     public static bool FogEnabled = true;
     public static bool MapTransparent;
-    public static int TransparencyPercent = 30;
+    public static int TransparencyPercent = 5;
     public static bool EdgeFade;
     public static bool NorthUp = true;
+    public static bool CoordinatesEnabled;
+    public static bool CoordinatesAbove;
+    public static bool DirectionsEnabled;
     private static string SettingsPath;
 
     public static void Initialize()
@@ -72,6 +75,9 @@ internal static class MiniMapPreferences
                 else if (key == "TransparencyPercent") TransparencyPercent = ParseInt(value, TransparencyPercent);
                 else if (key == "EdgeFade") EdgeFade = value == "1";
                 else if (key == "NorthUp") NorthUp = value != "0";
+                else if (key == "CoordinatesEnabled") CoordinatesEnabled = value == "1";
+                else if (key == "CoordinatesAbove") CoordinatesAbove = value == "1";
+                else if (key == "DirectionsEnabled") DirectionsEnabled = value == "1";
             }
             Normalize();
         }
@@ -105,7 +111,10 @@ internal static class MiniMapPreferences
                 "MapTransparent=" + (MapTransparent ? "1" : "0"),
                 "TransparencyPercent=" + TransparencyPercent,
                 "EdgeFade=" + (EdgeFade ? "1" : "0"),
-                "NorthUp=" + (NorthUp ? "1" : "0")
+                "NorthUp=" + (NorthUp ? "1" : "0"),
+                "CoordinatesEnabled=" + (CoordinatesEnabled ? "1" : "0"),
+                "CoordinatesAbove=" + (CoordinatesAbove ? "1" : "0"),
+                "DirectionsEnabled=" + (DirectionsEnabled ? "1" : "0")
             });
         }
         catch (Exception exception)
@@ -119,11 +128,11 @@ internal static class MiniMapPreferences
         Zoom = Mathf.Clamp(Mathf.Round(Zoom / 2f) * 2f, 0f, 10f);
         ArrowSize = Mathf.Clamp(ArrowSize, 16, 80);
         MapSize = Mathf.Clamp(MapSize, 128, 480);
-        FrameStyle = Mathf.Clamp(FrameStyle, 0, 5);
+        FrameStyle = Mathf.Clamp(FrameStyle, 0, 4);
         Brightness = Mathf.Clamp(Brightness, 0.1f, 1f);
         if (PositionStep != 1 && PositionStep != 10 && PositionStep != 100) PositionStep = 10;
         MapShape = Mathf.Clamp(MapShape, 0, 1);
-        TransparencyPercent = Mathf.Clamp(Mathf.RoundToInt(TransparencyPercent / 5f) * 5, 0, 50);
+        TransparencyPercent = Mathf.Clamp(TransparencyPercent, 1, 10);
     }
 
     private static float ParseFloat(string value, float fallback)
@@ -148,6 +157,10 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private XUiController clippingPanel;
     private XUiController background;
     private XUiController brightnessOverlay;
+    private XUiV_Label coordinatesLabel;
+    private readonly XUiV_Label[] directionLabels = new XUiV_Label[4];
+    private const int CoordinatesHeight = 20;
+    private const int CoordinatesGap = 4;
     private Vector2i lastPlayerChunk = new Vector2i(int.MinValue, int.MinValue);
     private Material originalMapMaterial;
     private Material transparentMapMaterial;
@@ -166,6 +179,10 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         clippingPanel = GetChildById("clippingPanel");
         background = GetChildById("backgroundMain");
         brightnessOverlay = GetChildById("brightnessOverlay");
+        coordinatesLabel = GetChildById("miniMapCoordinates")?.ViewComponent as XUiV_Label;
+        string[] directionIds = { "miniMapNorth", "miniMapEast", "miniMapSouth", "miniMapWest" };
+        for (int i = 0; i < directionLabels.Length; i++)
+            directionLabels[i] = GetChildById(directionIds[i])?.ViewComponent as XUiV_Label;
         originalMapMaterial = xuiTexture.Material;
         originalMapWrapMode = mapTexture.wrapMode;
         InstallShapeGeometry();
@@ -226,6 +243,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         frame.ViewComponent.IsVisible = mapVisible && MiniMapPreferences.FrameStyle != 0;
 
         EntityPlayerLocal player = GameManager.Instance?.World?.GetPrimaryPlayer();
+        UpdateCoordinates(player, mapVisible);
+        UpdateDirections(player, mapVisible);
         if (player != null)
         {
             Vector2i currentPlayerChunk = World.toChunkXZ(player.position);
@@ -256,6 +275,17 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         }
     }
 
+    private void UpdateCoordinates(EntityPlayerLocal player, bool mapVisible)
+    {
+        if (coordinatesLabel == null) return;
+        coordinatesLabel.IsVisible = mapVisible && MiniMapPreferences.CoordinatesEnabled && player != null;
+        if (!coordinatesLabel.IsVisible) return;
+        Vector3 position = player.GetPosition();
+        string text = string.Format(CultureInfo.InvariantCulture, "X: {0}  Y: {1}  Z: {2}",
+            Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.z), Mathf.FloorToInt(position.y));
+        if (coordinatesLabel.Text != text) coordinatesLabel.Text = text;
+    }
+
     private void ToggleSettings()
     {
         GUIWindowManager manager = xui.playerUI.windowManager;
@@ -267,6 +297,24 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         }
     }
 
+    private void UpdateDirections(EntityPlayerLocal player, bool mapVisible)
+    {
+        bool visible = mapVisible && MiniMapPreferences.DirectionsEnabled && player != null;
+        float heading = MiniMapPreferences.NorthUp || player == null ? 0f : player.rotation.y;
+        float center = MiniMapPreferences.MapSize / 2f;
+        float radius = Mathf.Max(0f, center - 18f);
+        for (int i = 0; i < directionLabels.Length; i++)
+        {
+            XUiV_Label label = directionLabels[i];
+            if (label == null) continue;
+            label.IsVisible = visible;
+            if (!visible) continue;
+            float angle = (i * 90f - heading) * Mathf.Deg2Rad;
+            label.Position = new Vector2i(Mathf.RoundToInt(center + Mathf.Sin(angle) * radius - 12f),
+                Mathf.RoundToInt(-center + Mathf.Cos(angle) * radius + 12f));
+        }
+    }
+
     public void ApplyPreferences()
     {
         int size = MiniMapPreferences.MapSize;
@@ -275,10 +323,22 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         float brightness = MiniMapPreferences.Brightness;
         Vector2i screenSize = xui.GetXUiScreenSize();
         MiniMapPreferences.PositionX = Mathf.Clamp(MiniMapPreferences.PositionX, 0, Math.Max(0, screenSize.x - size));
-        MiniMapPreferences.PositionY = Mathf.Clamp(MiniMapPreferences.PositionY, -Math.Max(0, screenSize.y - size), 0);
+        int coordinateSpace = MiniMapPreferences.CoordinatesEnabled ? CoordinatesHeight + CoordinatesGap : 0;
+        int topSpace = MiniMapPreferences.CoordinatesAbove ? coordinateSpace : 0;
+        int bottomSpace = MiniMapPreferences.CoordinatesAbove ? 0 : coordinateSpace;
+        MiniMapPreferences.PositionY = Mathf.Clamp(MiniMapPreferences.PositionY,
+            -Math.Max(topSpace, screenSize.y - size - bottomSpace), -topSpace);
 
         ViewComponent.Size = new Vector2i(size, size);
         ViewComponent.Position = new Vector2i(MiniMapPreferences.PositionX, MiniMapPreferences.PositionY);
+        if (coordinatesLabel != null)
+        {
+            coordinatesLabel.Size = new Vector2i(size, CoordinatesHeight);
+            coordinatesLabel.Position = new Vector2i(0, MiniMapPreferences.CoordinatesAbove
+                ? CoordinatesHeight + CoordinatesGap : -size - CoordinatesGap);
+            UpdateCoordinates(GameManager.Instance?.World?.GetPrimaryPlayer(),
+                MiniMapPreferences.Enabled && !xui.playerUI.windowManager.IsWindowOpen("ingameMenu"));
+        }
         mapView.ViewComponent.Size = new Vector2i(size, size);
         mapView.ViewComponent.IsVisible = MiniMapPreferences.Enabled;
         frame.ViewComponent.Size = new Vector2i(size, size);
@@ -315,6 +375,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         UpdateMapRendering();
         MarkShapeGeometryChanged();
         bShouldRedrawMap = true;
+        UpdateDirections(GameManager.Instance?.World?.GetPrimaryPlayer(),
+            MiniMapPreferences.Enabled && !xui.playerUI.windowManager.IsWindowOpen("ingameMenu"));
     }
 
     private static Color GetFrameColor(int style)
@@ -501,7 +563,12 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     private static void FillCircleFrameWhenSelected(UIWidget widget, int offset, List<Vector3> verts, List<Vector2> uvs, List<Color> colors)
     {
-        if (MiniMapPreferences.MapShape != 1 || verts.Count <= offset || uvs.Count <= offset || colors.Count <= offset) return;
+        if (MiniMapPreferences.MapShape == 0)
+        {
+            MiniMapBorderGeometry.Fill(widget, offset, verts, uvs, colors, 5f);
+            return;
+        }
+        if (verts.Count <= offset || uvs.Count <= offset || colors.Count <= offset) return;
 
         float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
         Vector2 sampleUv = uvs[offset];
@@ -571,7 +638,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
 public class XUiC_MiniMapSettings : XUiController
 {
-    private static readonly string[] FrameNames = { "Rahmenlos", "Schwarz", "Weiß", "Rot", "Grün", "Blau" };
+    private string positionHint = "";
 
     public override void Init()
     {
@@ -583,16 +650,23 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("arrowUp", delegate { MiniMapPreferences.ArrowSize += 4; Changed(); });
         Bind("sizeDown", delegate { MiniMapPreferences.MapSize -= 32; Changed(); });
         Bind("sizeUp", delegate { MiniMapPreferences.MapSize += 32; Changed(); });
-        Bind("frameCycle", delegate { MiniMapPreferences.FrameStyle = (MiniMapPreferences.FrameStyle + 1) % FrameNames.Length; Changed(); });
+        Bind("frameBlack", delegate { MiniMapPreferences.FrameStyle = 1; Changed(); });
+        Bind("frameWhite", delegate { MiniMapPreferences.FrameStyle = 2; Changed(); });
+        Bind("frameGreen", delegate { MiniMapPreferences.FrameStyle = 4; Changed(); });
+        Bind("frameRed", delegate { MiniMapPreferences.FrameStyle = 3; Changed(); });
+        Bind("frameNone", delegate { MiniMapPreferences.FrameStyle = 0; Changed(); });
         Bind("brightnessDown", delegate { MiniMapPreferences.Brightness -= 0.1f; Changed(); });
         Bind("brightnessUp", delegate { MiniMapPreferences.Brightness += 0.1f; Changed(); });
         Bind("mapShape", delegate { MiniMapPreferences.MapShape = 1 - MiniMapPreferences.MapShape; Changed(); });
         Bind("fogToggle", delegate { MiniMapPreferences.FogEnabled = !MiniMapPreferences.FogEnabled; Changed(); });
         Bind("transparencyToggle", delegate { MiniMapPreferences.MapTransparent = !MiniMapPreferences.MapTransparent; Changed(); });
-        Bind("transparencyDown", delegate { MiniMapPreferences.TransparencyPercent -= 5; Changed(); });
-        Bind("transparencyUp", delegate { MiniMapPreferences.TransparencyPercent += 5; Changed(); });
+        Bind("transparencyDown", delegate { MiniMapPreferences.TransparencyPercent -= 1; Changed(); });
+        Bind("transparencyUp", delegate { MiniMapPreferences.TransparencyPercent += 1; Changed(); });
         Bind("edgeFadeToggle", delegate { MiniMapPreferences.EdgeFade = !MiniMapPreferences.EdgeFade; Changed(); });
         Bind("northToggle", delegate { MiniMapPreferences.NorthUp = !MiniMapPreferences.NorthUp; Changed(); });
+        Bind("coordinatesToggle", delegate { MiniMapPreferences.CoordinatesEnabled = !MiniMapPreferences.CoordinatesEnabled; Changed(); });
+        Bind("coordinatesPosition", delegate { MiniMapPreferences.CoordinatesAbove = !MiniMapPreferences.CoordinatesAbove; Changed(); });
+        Bind("directionsToggle", delegate { MiniMapPreferences.DirectionsEnabled = !MiniMapPreferences.DirectionsEnabled; Changed(); });
         Bind("positionLeft", delegate { MiniMapPreferences.PositionX -= MiniMapPreferences.PositionStep; Changed(); });
         Bind("positionRight", delegate { MiniMapPreferences.PositionX += MiniMapPreferences.PositionStep; Changed(); });
         Bind("positionUp", delegate { MiniMapPreferences.PositionY += MiniMapPreferences.PositionStep; Changed(); });
@@ -602,15 +676,26 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("positionStep1", delegate { MiniMapPreferences.PositionStep = 1; Changed(); });
         Bind("positionStep10", delegate { MiniMapPreferences.PositionStep = 10; Changed(); });
         Bind("positionStep100", delegate { MiniMapPreferences.PositionStep = 100; Changed(); });
-        Bind("miniMapClose", delegate { xui.playerUI.windowManager.Close("miniMapSettings"); });
         Bind("miniMapUpdate", delegate { if (MiniMapUpdater.Press()) Application.OpenURL("https://github.com/NAS4Killer/MiniMap_Mod"); });
         Bind("miniMapReleaseNotes", delegate { string url = MiniMapUpdater.ReleaseNotesUrl; if (url != null) Application.OpenURL(url); });
+        BindPositionHint("positionReset", "Reset: Map Position zurücksetzen.");
+        BindPositionHint("positionSave", "Speichern: Aktuelle Map Position als Standard setzen.");
+        MoveCaptionDown("positionUp");
+        MoveCaptionDown("positionDown");
+        foreach (string id in new[] { "frameBlack", "frameWhite", "frameGreen", "frameRed", "frameNone",
+                                     "positionStep1", "positionStep10", "positionStep100" })
+        {
+            if (GetChildById(id + "Outline")?.ViewComponent is XUiV_Sprite border)
+                border.Sprite.onPostFill = delegate(UIWidget widget, int offset, List<Vector3> verts, List<Vector2> uvs, List<Color> colors)
+                    { MiniMapBorderGeometry.Fill(widget, offset, verts, uvs, colors, 3f); };
+        }
         RefreshValues();
     }
 
     public override void OnOpen()
     {
         base.OnOpen();
+        positionHint = "";
         MiniMapUpdater.EnsureChecked();
         RefreshValues();
     }
@@ -618,6 +703,11 @@ public class XUiC_MiniMapSettings : XUiController
     public override void Update(float deltaTime)
     {
         base.Update(deltaTime);
+        if (Input.GetKeyDown(KeyCode.Escape) && xui.playerUI.windowManager.IsWindowOpen("miniMapSettings"))
+        {
+            xui.playerUI.windowManager.Close("miniMapSettings");
+            return;
+        }
         SetButtonText("miniMapUpdate", MiniMapUpdater.Caption);
         if (GetChildById("miniMapUpdate")?.GetChildById("btnLabel")?.ViewComponent is XUiV_Label updateLabel)
             updateLabel.Color = MiniMapUpdater.IsGreen ? new Color32(70, 230, 70, 255) : Color.white;
@@ -626,6 +716,25 @@ public class XUiC_MiniMapSettings : XUiController
             updateStatus.Color = MiniMapUpdater.NeedsRestart ? new Color32(255, 60, 60, 255) : new Color32(180, 180, 180, 255);
         XUiController releaseNotes = GetChildById("miniMapReleaseNotes");
         if (releaseNotes?.ViewComponent != null) releaseNotes.ViewComponent.IsVisible = MiniMapUpdater.ReleaseNotesUrl != null;
+        XUiController hint = GetChildById("positionHint");
+        if (hint?.ViewComponent != null)
+        {
+            hint.ViewComponent.IsVisible = positionHint.Length > 0;
+            hint.ViewComponent.Position = new Vector2i(170, MiniMapUpdater.ReleaseNotesUrl != null ? -630 : -594);
+        }
+        SetLabel("positionHint", positionHint);
+        if (GetChildById("miniMapUpdateStatus")?.ViewComponent != null)
+            GetChildById("miniMapUpdateStatus").ViewComponent.IsVisible = positionHint.Length == 0;
+        ConfigureFrameFill("frameBlack", Color.black);
+        ConfigureFrameFill("frameWhite", Color.white);
+        ConfigureFrameFill("frameGreen", new Color32(35, 150, 65, 255));
+        ConfigureFrameFill("frameRed", new Color32(190, 35, 35, 255));
+        ConfigureFrameFill("frameNone", new Color32(92, 92, 92, 255));
+        SetSelectionBorder("frameBlack", MiniMapPreferences.FrameStyle == 1);
+        SetSelectionBorder("frameWhite", MiniMapPreferences.FrameStyle == 2);
+        SetSelectionBorder("frameGreen", MiniMapPreferences.FrameStyle == 4);
+        SetSelectionBorder("frameRed", MiniMapPreferences.FrameStyle == 3);
+        SetSelectionBorder("frameNone", MiniMapPreferences.FrameStyle == 0);
     }
 
     private void Bind(string id, Action action)
@@ -652,7 +761,11 @@ public class XUiC_MiniMapSettings : XUiController
         SetLabel("zoomValue", MiniMapPreferences.Zoom.ToString("0", CultureInfo.InvariantCulture) + "x");
         SetLabel("arrowValue", MiniMapPreferences.ArrowSize.ToString(CultureInfo.InvariantCulture));
         SetLabel("sizeValue", MiniMapPreferences.MapSize.ToString(CultureInfo.InvariantCulture));
-        SetButtonText("frameCycle", FrameNames[MiniMapPreferences.FrameStyle]);
+        SetSelectionBorder("frameBlack", MiniMapPreferences.FrameStyle == 1);
+        SetSelectionBorder("frameWhite", MiniMapPreferences.FrameStyle == 2);
+        SetSelectionBorder("frameGreen", MiniMapPreferences.FrameStyle == 4);
+        SetSelectionBorder("frameRed", MiniMapPreferences.FrameStyle == 3);
+        SetSelectionBorder("frameNone", MiniMapPreferences.FrameStyle == 0);
         SetLabel("brightnessValue", Mathf.RoundToInt(MiniMapPreferences.Brightness * 100f) + "%");
         SetButtonText("mapShape", MiniMapPreferences.MapShape == 1 ? "Kreis" : "Quadrat");
         SetButtonText("fogToggle", MiniMapPreferences.FogEnabled ? "AN" : "AUS");
@@ -660,9 +773,12 @@ public class XUiC_MiniMapSettings : XUiController
         SetLabel("transparencyValue", MiniMapPreferences.TransparencyPercent + "%");
         SetButtonText("edgeFadeToggle", MiniMapPreferences.EdgeFade ? "AN" : "AUS");
         SetButtonText("northToggle", MiniMapPreferences.NorthUp ? "AN" : "AUS");
-        SetButtonText("positionStep1", MiniMapPreferences.PositionStep == 1 ? "[1 px]" : "1 px");
-        SetButtonText("positionStep10", MiniMapPreferences.PositionStep == 10 ? "[10 px]" : "10 px");
-        SetButtonText("positionStep100", MiniMapPreferences.PositionStep == 100 ? "[100 px]" : "100 px");
+        SetButtonText("coordinatesToggle", MiniMapPreferences.CoordinatesEnabled ? "AN" : "AUS");
+        SetButtonText("coordinatesPosition", MiniMapPreferences.CoordinatesAbove ? "Über der Map" : "Unter der Map");
+        SetButtonText("directionsToggle", MiniMapPreferences.DirectionsEnabled ? "AN" : "AUS");
+        SetSelectionBorder("positionStep1", MiniMapPreferences.PositionStep == 1);
+        SetSelectionBorder("positionStep10", MiniMapPreferences.PositionStep == 10);
+        SetSelectionBorder("positionStep100", MiniMapPreferences.PositionStep == 100);
     }
 
     private void SetLabel(string id, string value)
@@ -671,8 +787,74 @@ public class XUiC_MiniMapSettings : XUiController
         if (controller?.ViewComponent is XUiV_Label label) label.Text = value;
     }
 
+    private void SetSelectionBorder(string id, bool selected)
+    {
+        if (GetChildById(id + "Outline")?.ViewComponent is XUiV_Sprite border)
+            border.Color = selected ? new Color32(0, 95, 255, 255) : new Color32(0, 0, 0, 255);
+    }
+
+    private void BindPositionHint(string id, string text)
+    {
+        if (!(GetChildById(id) is XUiC_SimpleButton button)) return;
+        button.OnHovered += delegate(XUiController sender, bool over)
+        {
+            if (over) positionHint = text;
+            else if (positionHint == text) positionHint = "";
+        };
+    }
+
+    private void MoveCaptionDown(string id)
+    {
+        if (GetChildById(id)?.GetChildById("btnLabel")?.ViewComponent is XUiV_Label label)
+            label.Position = new Vector2i(label.Position.x, label.Position.y - 3);
+    }
+
+    private void ConfigureFrameFill(string id, Color color)
+    {
+        if (GetChildById(id) is XUiC_SimpleButton button && button.Button != null)
+        {
+            button.Button.DefaultSpriteColor = color;
+            button.Button.HoverSpriteColor = color;
+            button.Button.SelectedSpriteColor = color;
+            button.Button.ManualColors = true;
+            button.Button.CurrentColor = color;
+        }
+    }
+
     private void SetButtonText(string id, string value)
     {
         if (GetChildById(id) is XUiC_SimpleButton button) button.Text = value;
+    }
+}
+
+internal static class MiniMapBorderGeometry
+{
+    internal static void Fill(UIWidget widget, int offset, List<Vector3> verts, List<Vector2> uvs, List<Color> colors, float thickness)
+    {
+        if (verts.Count <= offset || uvs.Count <= offset || colors.Count <= offset) return;
+        float left = float.MaxValue, right = float.MinValue, bottom = float.MaxValue, top = float.MinValue;
+        Color color = colors[offset];
+        Vector2 uv = uvs[offset];
+        for (int i = offset; i < verts.Count; i++)
+        {
+            left = Mathf.Min(left, verts[i].x); right = Mathf.Max(right, verts[i].x);
+            bottom = Mathf.Min(bottom, verts[i].y); top = Mathf.Max(top, verts[i].y);
+        }
+        verts.RemoveRange(offset, verts.Count - offset);
+        uvs.RemoveRange(offset, uvs.Count - offset);
+        colors.RemoveRange(offset, colors.Count - offset);
+        float border = Mathf.Min(thickness, Mathf.Min(right-left, top-bottom)/2f);
+        Add(verts, uvs, colors, left, right, top-border, top, uv, color);
+        Add(verts, uvs, colors, left, right, bottom, bottom+border, uv, color);
+        Add(verts, uvs, colors, left, left+border, bottom+border, top-border, uv, color);
+        Add(verts, uvs, colors, right-border, right, bottom+border, top-border, uv, color);
+    }
+
+    private static void Add(List<Vector3> verts, List<Vector2> uvs, List<Color> colors,
+                            float left, float right, float bottom, float top, Vector2 uv, Color color)
+    {
+        verts.Add(new Vector3(left, bottom)); verts.Add(new Vector3(left, top));
+        verts.Add(new Vector3(right, top)); verts.Add(new Vector3(right, bottom));
+        for (int i = 0; i < 4; i++) { uvs.Add(uv); colors.Add(color); }
     }
 }

@@ -1,0 +1,8 @@
+MiniMap_Mod 0.0.5.7
+Mod-Autor: NAS4Killer
+
+- Sichtbare Kategorie Sonstiges im bestehenden Optionsmenü: Karte Norden, Himmelsrichtungen, Randverlauf und Kriegsnebel.
+- Rahmenwahl durch direkte Farbbuttons für Schwarz, Weiß, Grün, Rot und Rahmenlos ersetzt; X markiert die Auswahl.
+- Alle Bedienzeilen auf 280 Pixel Gesamtbreite vereinheitlicht.
+- Positionstasten gleich breit; Schrittweitentasten ebenfalls gleich breit.
+- Alte blaue Rahmenauswahl wird auf Grün übernommen.

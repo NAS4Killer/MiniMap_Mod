@@ -21,70 +21,92 @@
         <panel name="clippingPanel" depth="4" width="256" height="256" pos="0,0" clipping="SoftClip" clippingsoftness="2,2" clippingsize="256,256" clippingcenter="128,-128" />
         <sprite depth="5" name="brightnessOverlay" sprite="menu_empty" color="0,0,0,0" type="sliced" fillcenter="true" width="256" height="256" />
       </rect>
+      <label name="miniMapCoordinates" depth="6" pos="0,-260" width="256" height="20" text="" font_size="16" justify="center" color="255,255,255,255" visible="false" />
+      <label name="miniMapNorth" depth="7" width="24" height="24" text="N" font_size="20" justify="center" color="255,255,255,255" visible="false" />
+      <label name="miniMapEast" depth="7" width="24" height="24" text="O" font_size="20" justify="center" color="255,255,255,255" visible="false" />
+      <label name="miniMapSouth" depth="7" width="24" height="24" text="S" font_size="20" justify="center" color="255,255,255,255" visible="false" />
+      <label name="miniMapWest" depth="7" width="24" height="24" text="W" font_size="20" justify="center" color="255,255,255,255" visible="false" />
     </window>
     <window name="windowMiniMapSettings" width="850" height="658" pos="-425,329" anchor="Center" controller="MiniMapSettings, MiniMap_Mod">
       <sprite depth="0" sprite="menu_empty" color="18,18,18,245" type="sliced" fillcenter="true" width="850" height="658" />
-      <label pos="530,-78" width="290" height="32" text="Kartentransparenz" font_size="24" color="255,255,255,255" />
-      <simplebutton name="transparencyToggle" pos="595,-118" width="160" height="34" caption="AUS" font_size="20" />
-      <simplebutton name="transparencyDown" pos="595,-158" width="45" height="30" caption="-" font_size="24" />
-      <label name="transparencyValue" pos="645,-158" width="60" height="30" text="30%" font_size="22" justify="center" color="255,255,255,255" />
-      <simplebutton name="transparencyUp" pos="710,-158" width="45" height="30" caption="+" font_size="24" />
-      <label pos="530,-190" width="290" height="32" text="Randverlauf" font_size="24" color="255,255,255,255" />
-      <simplebutton name="edgeFadeToggle" pos="595,-230" width="160" height="34" caption="AUS" font_size="20" />
-      <label pos="530,-302" width="290" height="32" text="Karte Norden" font_size="24" color="255,255,255,255" />
-      <simplebutton name="northToggle" pos="595,-342" width="160" height="34" caption="AN" font_size="20" />
+      <label pos="530,-78" width="280" height="28" text="Kartentransparenz" font_size="24" color="255,255,255,255" />
+      <simplebutton name="transparencyToggle" pos="530,-110" width="280" height="34" caption="AUS" font_size="20" />
+      <simplebutton name="transparencyDown" pos="530,-150" width="48" height="34" caption="-" font_size="24" />
+      <label name="transparencyValue" pos="586,-150" width="168" height="34" text="5%" font_size="22" justify="center" color="255,255,255,255" />
+      <simplebutton name="transparencyUp" pos="762,-150" width="48" height="34" caption="+" font_size="24" />
+      <label pos="530,-190" width="280" height="28" text="Koordinaten inkl. Höhe" font_size="24" color="255,255,255,255" />
+      <simplebutton name="coordinatesToggle" pos="530,-222" width="280" height="34" caption="AUS" font_size="20" />
+      <simplebutton name="coordinatesPosition" pos="530,-262" width="280" height="34" caption="Unter der Map" font_size="20" />
+      <label pos="530,-302" width="280" height="28" text="Sonstiges" font_size="24" color="255,255,255,255" />
+      <label name="northCaption" pos="530,-338" width="170" height="28" text="Karte Norden" font_size="20" color="255,255,255,255" />
+      <simplebutton name="northToggle" pos="710,-334" width="100" height="34" caption="AN" font_size="20" />
+      <label name="directionsCaption" pos="530,-378" width="170" height="28" text="Himmelsrichtungen" font_size="20" color="255,255,255,255" />
+      <simplebutton name="directionsToggle" pos="710,-374" width="100" height="34" caption="AUS" font_size="20" />
+      <label name="edgeFadeCaption" pos="530,-418" width="170" height="28" text="Randverlauf" font_size="20" color="255,255,255,255" />
+      <simplebutton name="edgeFadeToggle" pos="710,-414" width="100" height="34" caption="AUS" font_size="20" />
+      <label name="fogCaption" pos="530,-458" width="170" height="28" text="Kriegsnebel" font_size="20" color="255,255,255,255" />
+      <simplebutton name="fogToggle" pos="710,-454" width="100" height="34" caption="AN" font_size="20" />
       <label depth="1" pos="24,-20" width="802" height="38" text="MINIMAP-OPTIONEN" font_size="30" justify="center" color="255,255,255,255" />
 
-      <label pos="30,-78" width="260" height="32" text="Minimap" font_size="24" color="255,255,255,255" />
-      <simplebutton name="miniMapToggle" pos="330,-74" width="160" height="34" caption="AN" font_size="22" />
+      <label pos="30,-78" width="170" height="32" text="Minimap" font_size="24" color="255,255,255,255" />
+      <simplebutton name="miniMapToggle" pos="220,-74" width="280" height="34" caption="AN" font_size="22" />
 
-      <label pos="30,-126" width="260" height="32" text="Zoomfaktor" font_size="24" color="255,255,255,255" />
-      <simplebutton name="zoomDown" pos="330,-122" width="45" height="34" caption="-" font_size="24" />
-      <label name="zoomValue" pos="380,-122" width="60" height="34" text="1.0x" font_size="22" justify="center" color="255,255,255,255" />
-      <simplebutton name="zoomUp" pos="445,-122" width="45" height="34" caption="+" font_size="24" />
+      <label pos="30,-126" width="170" height="32" text="Zoomfaktor" font_size="24" color="255,255,255,255" />
+      <simplebutton name="zoomDown" pos="220,-122" width="48" height="34" caption="-" font_size="24" />
+      <label name="zoomValue" pos="276,-122" width="168" height="34" text="1.0x" font_size="22" justify="center" color="255,255,255,255" />
+      <simplebutton name="zoomUp" pos="452,-122" width="48" height="34" caption="+" font_size="24" />
 
-      <label pos="30,-174" width="260" height="32" text="Spielerpfeil" font_size="24" color="255,255,255,255" />
-      <simplebutton name="arrowDown" pos="330,-170" width="45" height="34" caption="-" font_size="24" />
-      <label name="arrowValue" pos="380,-170" width="60" height="34" text="40" font_size="22" justify="center" color="255,255,255,255" />
-      <simplebutton name="arrowUp" pos="445,-170" width="45" height="34" caption="+" font_size="24" />
+      <label pos="30,-174" width="170" height="32" text="Spielerpfeil" font_size="24" color="255,255,255,255" />
+      <simplebutton name="arrowDown" pos="220,-170" width="48" height="34" caption="-" font_size="24" />
+      <label name="arrowValue" pos="276,-170" width="168" height="34" text="40" font_size="22" justify="center" color="255,255,255,255" />
+      <simplebutton name="arrowUp" pos="452,-170" width="48" height="34" caption="+" font_size="24" />
 
-      <label pos="30,-222" width="260" height="32" text="Minimap-Größe" font_size="24" color="255,255,255,255" />
-      <simplebutton name="sizeDown" pos="330,-218" width="45" height="34" caption="-" font_size="24" />
-      <label name="sizeValue" pos="380,-218" width="60" height="34" text="256" font_size="22" justify="center" color="255,255,255,255" />
-      <simplebutton name="sizeUp" pos="445,-218" width="45" height="34" caption="+" font_size="24" />
+      <label pos="30,-222" width="170" height="32" text="Minimap-Größe" font_size="24" color="255,255,255,255" />
+      <simplebutton name="sizeDown" pos="220,-218" width="48" height="34" caption="-" font_size="24" />
+      <label name="sizeValue" pos="276,-218" width="168" height="34" text="256" font_size="22" justify="center" color="255,255,255,255" />
+      <simplebutton name="sizeUp" pos="452,-218" width="48" height="34" caption="+" font_size="24" />
 
-      <label pos="30,-270" width="260" height="32" text="Rahmen" font_size="24" color="255,255,255,255" />
-      <simplebutton name="frameCycle" pos="330,-266" width="160" height="34" caption="Rahmenlos" font_size="20" />
+      <label pos="30,-270" width="170" height="32" text="Rahmen" font_size="24" color="255,255,255,255" />
+      <simplebutton name="frameBlack" pos="220,-266" width="48" height="34" caption="" font_size="20" />
+      <simplebutton name="frameWhite" pos="278,-266" width="48" height="34" caption="" font_size="20" />
+      <simplebutton name="frameGreen" pos="336,-266" width="48" height="34" caption="" font_size="20" />
+      <simplebutton name="frameRed" pos="394,-266" width="48" height="34" caption="" font_size="20" />
+      <simplebutton name="frameNone" pos="452,-266" width="48" height="34" caption="" font_size="20" />
+      <sprite name="frameBlackOutline" depth="10" pos="220,-266" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <sprite name="frameWhiteOutline" depth="10" pos="278,-266" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <sprite name="frameGreenOutline" depth="10" pos="336,-266" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <sprite name="frameRedOutline" depth="10" pos="394,-266" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <sprite name="frameNoneOutline" depth="10" pos="452,-266" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
 
-      <label pos="30,-318" width="260" height="32" text="Mapform" font_size="24" color="255,255,255,255" />
-      <simplebutton name="mapShape" pos="330,-314" width="160" height="34" caption="Quadrat" font_size="20" />
+      <label pos="30,-318" width="170" height="32" text="Mapform" font_size="24" color="255,255,255,255" />
+      <simplebutton name="mapShape" pos="220,-314" width="280" height="34" caption="Quadrat" font_size="20" />
 
-      <label pos="30,-366" width="260" height="32" text="Kriegsnebel" font_size="24" color="255,255,255,255" />
-      <simplebutton name="fogToggle" pos="330,-362" width="160" height="34" caption="AN" font_size="20" />
+      <label pos="30,-366" width="170" height="32" text="Helligkeit" font_size="24" color="255,255,255,255" />
+      <simplebutton name="brightnessDown" pos="220,-362" width="48" height="34" caption="-" font_size="24" />
+      <label name="brightnessValue" pos="276,-362" width="168" height="34" text="100%" font_size="22" justify="center" color="255,255,255,255" />
+      <simplebutton name="brightnessUp" pos="452,-362" width="48" height="34" caption="+" font_size="24" />
 
-      <label pos="30,-414" width="260" height="32" text="Helligkeit" font_size="24" color="255,255,255,255" />
-      <simplebutton name="brightnessDown" pos="330,-410" width="45" height="34" caption="-" font_size="24" />
-      <label name="brightnessValue" pos="380,-410" width="60" height="34" text="100%" font_size="22" justify="center" color="255,255,255,255" />
-      <simplebutton name="brightnessUp" pos="445,-410" width="45" height="34" caption="+" font_size="24" />
+      <label pos="30,-414" width="170" height="32" text="Position" font_size="24" color="255,255,255,255" />
+      <simplebutton name="positionLeft" pos="220,-410" width="40" height="34" caption="◄" font_size="22" />
+      <simplebutton name="positionUp" pos="268,-410" width="40" height="34" caption="▲" font_size="18" />
+      <simplebutton name="positionDown" pos="316,-410" width="40" height="34" caption="▼" font_size="18" />
+      <simplebutton name="positionRight" pos="364,-410" width="40" height="34" caption="►" font_size="22" />
+      <simplebutton name="positionReset" pos="412,-410" width="40" height="34" caption="R" font_size="20" />
+      <simplebutton name="positionSave" pos="460,-410" width="40" height="34" caption="S" font_size="20" />
 
-      <label pos="30,-462" width="220" height="32" text="Position" font_size="24" color="255,255,255,255" />
-      <simplebutton name="positionLeft" pos="238,-458" width="36" height="34" caption="&lt;" font_size="22" />
-      <simplebutton name="positionUp" pos="278,-458" width="36" height="34" caption="^" font_size="22" />
-      <simplebutton name="positionDown" pos="318,-458" width="36" height="34" caption="v" font_size="22" />
-      <simplebutton name="positionRight" pos="358,-458" width="36" height="34" caption="&gt;" font_size="22" />
-      <simplebutton name="positionReset" pos="398,-458" width="42" height="34" caption="R" font_size="20" />
-      <simplebutton name="positionSave" pos="446,-458" width="42" height="34" caption="S" font_size="20" />
+      <label pos="30,-462" width="170" height="32" text="Schrittweite" font_size="24" color="255,255,255,255" />
+      <simplebutton name="positionStep1" pos="220,-458" width="88" height="34" caption="1 px" font_size="19" />
+      <simplebutton name="positionStep10" pos="316,-458" width="88" height="34" caption="10 px" font_size="19" />
+      <simplebutton name="positionStep100" pos="412,-458" width="88" height="34" caption="100 px" font_size="19" />
+      <sprite name="positionStep1Outline" depth="10" pos="220,-458" width="88" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <sprite name="positionStep10Outline" depth="10" pos="316,-458" width="88" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <sprite name="positionStep100Outline" depth="10" pos="412,-458" width="88" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
 
-      <label pos="30,-506" width="220" height="32" text="Schrittweite" font_size="24" color="255,255,255,255" />
-      <simplebutton name="positionStep1" pos="278,-502" width="64" height="34" caption="1 px" font_size="19" />
-      <simplebutton name="positionStep10" pos="350,-502" width="64" height="34" caption="10 px" font_size="19" />
-      <simplebutton name="positionStep100" pos="422,-502" width="68" height="34" caption="100 px" font_size="18" />
-
-      <label name="miniMapVersion" pos="530,-462" width="290" height="32" text="Version 0.0.5.3" font_size="22" justify="center" color="255,255,255,255" />
-      <simplebutton name="miniMapUpdate" pos="555,-502" width="240" height="34" caption="Github" font_size="20" />
-      <simplebutton name="miniMapReleaseNotes" pos="555,-544" width="240" height="34" caption="Release Notes" font_size="20" visible="false" />
-      <label name="miniMapUpdateStatus" pos="515,-582" width="320" height="40" text="" font_size="19" justify="center" color="180,180,180,255" />
-      <simplebutton name="miniMapClose" pos="345,-586" width="160" height="40" caption="SCHLIESSEN" font_size="21" />
+      <label name="miniMapVersion" pos="285,-518" width="280" height="32" text="Version 0.0.6.0" font_size="22" justify="center" color="255,255,255,255" />
+      <simplebutton name="miniMapUpdate" pos="285,-554" width="280" height="34" caption="Github" font_size="20" />
+      <simplebutton name="miniMapReleaseNotes" pos="285,-594" width="280" height="34" caption="Release Notes" font_size="20" visible="false" />
+      <label name="miniMapUpdateStatus" pos="285,-634" width="280" height="20" text="" font_size="16" justify="center" color="180,180,180,255" />
+      <label name="positionHint" pos="170,-594" width="510" height="28" text="" font_size="19" justify="center" color="255,255,255,255" visible="false" />
     </window>
   </append>
 </configs>

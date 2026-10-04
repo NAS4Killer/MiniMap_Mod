@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.0.6.4";
+    public const string Version = "0.1.0.0";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
@@ -173,13 +173,17 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private Texture2D displayMapTexture;
     private readonly MiniMapF5Input f5Input = new MiniMapF5Input();
     private readonly MiniMapMarkers miniMapMarkers = new MiniMapMarkers();
-    private readonly MiniMapPerformance performance = new MiniMapPerformance();
-    private float nextPerformanceReport;
     private readonly MiniMapPixelProcessor pixelProcessor = new MiniMapPixelProcessor();
     private bool pixelsDirty = true;
     private Vector2 pendingTextureCenter, pendingTextureScroll;
     private Vector2 displayTextureCenter, displayTextureScroll;
     private Color32[] pixelBuffer;
+    private readonly MiniMapDirtyTiles dirtyTiles = new MiniMapDirtyTiles();
+    private readonly MiniMapPixelProcessor tileProcessor = new MiniMapPixelProcessor();
+    private readonly Color32[] tilePixels = new Color32[64 * 64];
+    private readonly Color32[] tileWithHalo = new Color32[88 * 88];
+    private Texture2D tileTexture;
+    private bool copyTextureUnavailable;
 
     public override void Init()
     {
@@ -240,7 +244,6 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public override void Update(float deltaTime)
     {
-        long frameStart = System.Diagnostics.Stopwatch.GetTimestamp();
         GUIWindowManager inputManager = xui.playerUI.windowManager;
         int f5Action = f5Input.Update(Time.unscaledTime, Input.GetKeyDown(KeyCode.F5),
             MiniMapPreferences.F5ToggleMode, inputManager.IsWindowOpen("miniMapSettings"),
@@ -268,13 +271,10 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         {
             miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
                 mapHeading, zoomScale, MiniMapPreferences.MapSize, false);
-            performance.Record(0, frameStart);
             return;
         }
         bool redrawWasPending = bShouldRedrawMap;
-        long baseStart = System.Diagnostics.Stopwatch.GetTimestamp();
         base.Update(deltaTime);
-        performance.Record(1, baseStart);
         if (redrawWasPending || makeMapOpaqueAfterRedraw) pixelsDirty = true;
         makeMapOpaqueAfterRedraw = false;
         if (player != null)
@@ -283,10 +283,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             if (currentPlayerChunk != lastPlayerChunk)
             {
                 lastPlayerChunk = currentPlayerChunk;
-                long chunkStart = System.Diagnostics.Stopwatch.GetTimestamp();
                 RefreshPlayerChunks(currentPlayerChunk, player.position);
-                performance.Record(1, chunkStart);
-                pixelsDirty = true;
             }
 
             if (!centeredOnce)
@@ -310,17 +307,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f, MiniMapPreferences.NorthUp ? -player.rotation.y : 0f);
         }
         int markerBorder = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
-        long markerStart = System.Diagnostics.Stopwatch.GetTimestamp();
         miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
             mapHeading, zoomScale, MiniMapPreferences.MapSize - markerBorder * 2, mapVisible && isOpen);
-        performance.Record(6, markerStart);
-        performance.Record(0, frameStart);
-        if (nextPerformanceReport == 0f) nextPerformanceReport = Time.unscaledTime + 10f;
-        if (Time.unscaledTime >= nextPerformanceReport)
-        {
-            Debug.Log(performance.Report(MiniMapPreferences.Enabled, MiniMapPreferences.FogEnabled, MiniMapPreferences.EdgeFade));
-            nextPerformanceReport = Time.unscaledTime + 10f;
-        }
     }
 
     private void UpdateCoordinates(EntityPlayerLocal player, bool mapVisible)
@@ -488,12 +476,19 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         if (Math.Abs(dx) >= 128 || Math.Abs(dz) >= 128)
         {
             PositionMapAt(position);
+            pixelsDirty = true;
             return;
         }
         if (dx != 0 || dz != 0)
         {
+            int oldScrollX = mapScrollTextureChunksOffsetX * 16;
+            int oldScrollZ = mapScrollTextureChunksOffsetZ * 16;
             mapMiddlePosChunks += new Vector2(dx * 16f, dz * 16f);
             updateMapForScroll(dx, dz);
+            if (dx != 0) dirtyTiles.Mark(dx > 0 ? oldScrollX : mapScrollTextureChunksOffsetX * 16,
+                0, Math.Abs(dx) * 16, 2048);
+            if (dz != 0) dirtyTiles.Mark(0,
+                dz > 0 ? oldScrollZ : mapScrollTextureChunksOffsetZ * 16, 2048, Math.Abs(dz) * 16);
         }
         // Refresh the explored chunk and its neighbours: their fog boundaries can also change.
         int startX = (chunk.x - 1) * 16, startZ = (chunk.y - 1) * 16;
@@ -501,6 +496,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         int textureZ = Utils.WrapIndex(startZ - (int)mapMiddlePosChunks.y + 1024 + mapScrollTextureChunksOffsetZ * 16, 2048);
         updateMapSection(startX, startZ, startX + 48, startZ + 48,
             textureX, textureZ, Utils.WrapIndex(textureX + 48, 2048), Utils.WrapIndex(textureZ + 48, 2048));
+        dirtyTiles.Mark(textureX, textureZ, 48, 48);
         mapTexture.Apply(false, false);
     }
 
@@ -508,23 +504,23 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     {
         if (!pixelProcessor.Running)
         {
-            if (!pixelsDirty && displayMapTexture != null) return;
-            long readStart = System.Diagnostics.Stopwatch.GetTimestamp();
+            if (!pixelsDirty && displayMapTexture != null)
+            {
+                UpdateDirtyTiles();
+                return;
+            }
             if (pixelBuffer == null || pixelBuffer.Length != mapTexture.width * mapTexture.height)
                 pixelBuffer = new Color32[mapTexture.width * mapTexture.height];
             mapTexture.GetRawTextureData<Color32>().CopyTo(pixelBuffer);
             pixelProcessor.Begin(pixelBuffer, mapTexture.width,
                 MiniMapPreferences.FogEnabled, MiniMapPreferences.EdgeFade);
-            performance.Record(2, readStart);
             pendingTextureCenter = mapMiddlePosChunks;
             pendingTextureScroll = mapScrollTextureOffset;
             pixelsDirty = false;
+            dirtyTiles.Clear();
         }
-        long stageStart = System.Diagnostics.Stopwatch.GetTimestamp();
         bool finished = pixelProcessor.Step();
-        performance.Record(4, stageStart);
         if (!finished) return;
-        stageStart = System.Diagnostics.Stopwatch.GetTimestamp();
         if (displayMapTexture == null)
         {
             displayMapTexture = new Texture2D(mapTexture.width, mapTexture.height, TextureFormat.RGBA32, false);
@@ -535,7 +531,55 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         displayTextureCenter = pendingTextureCenter;
         displayTextureScroll = pendingTextureScroll;
         pixelProcessor.Cancel();
-        performance.Record(5, stageStart);
+    }
+
+    private void UpdateDirtyTiles()
+    {
+        if (dirtyTiles.Count == 0) return;
+        const int tileSize = 64, halo = 12, readSize = tileSize + halo * 2;
+        long batchStart = System.Diagnostics.Stopwatch.GetTimestamp();
+        var raw = mapTexture.GetRawTextureData<Color32>();
+        bool useHalo = MiniMapPreferences.EdgeFade && !MiniMapPreferences.FogEnabled;
+        for (int tile = 0; tile < 4 && dirtyTiles.Take(out int x, out int y); tile++)
+        {
+            int readWidth = useHalo ? readSize : tileSize;
+            int margin = useHalo ? halo : 0;
+            Color32[] buffer = useHalo ? tileWithHalo : tilePixels;
+            for (int row = 0; row < readWidth; row++)
+            {
+                int sourceY = MiniMapDirtyTiles.Wrap(y + row - margin, 2048);
+                int sourceX = MiniMapDirtyTiles.Wrap(x - margin, 2048);
+                int first = Math.Min(readWidth, 2048 - sourceX);
+                Unity.Collections.NativeArray<Color32>.Copy(raw, sourceY * 2048 + sourceX, buffer, row * readWidth, first);
+                if (first < readWidth)
+                    Unity.Collections.NativeArray<Color32>.Copy(raw, sourceY * 2048, buffer, row * readWidth + first, readWidth - first);
+            }
+            tileProcessor.Begin(buffer, readWidth, MiniMapPreferences.FogEnabled, useHalo);
+            tileProcessor.Step(40000, double.PositiveInfinity);
+            if (useHalo)
+                for (int row = 0; row < tileSize; row++)
+                    Array.Copy(buffer, (row + halo) * readSize + halo, tilePixels, row * tileSize, tileSize);
+            // Keep the CPU copy current too, so a fallback or later full upload cannot restore stale pixels.
+            displayMapTexture.SetPixels32(x, y, tileSize, tileSize, tilePixels);
+            if (!copyTextureUnavailable && (SystemInfo.copyTextureSupport & UnityEngine.Rendering.CopyTextureSupport.Basic) != 0)
+            {
+                if (tileTexture == null) tileTexture = new Texture2D(tileSize, tileSize, TextureFormat.RGBA32, false);
+                tileTexture.SetPixels32(tilePixels);
+                tileTexture.Apply(false, false);
+                try { Graphics.CopyTexture(tileTexture, 0, 0, 0, 0, tileSize, tileSize, displayMapTexture, 0, 0, x, y); }
+                catch (Exception exception)
+                {
+                    copyTextureUnavailable = true;
+                    Debug.LogWarning("[MiniMap_Mod] Partial GPU copy unavailable; using full upload: " + exception.Message);
+                    displayMapTexture.Apply(false, false);
+                }
+            }
+            else displayMapTexture.Apply(false, false);
+            displayTextureCenter = mapMiddlePosChunks;
+            displayTextureScroll = mapScrollTextureOffset;
+            tileProcessor.Cancel();
+            if ((System.Diagnostics.Stopwatch.GetTimestamp() - batchStart) * 1000.0 / System.Diagnostics.Stopwatch.Frequency >= 2.0) break;
+        }
     }
 
     private void MarkShapeGeometryChanged()
@@ -691,6 +735,9 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     public override void Cleanup()
     {
         pixelProcessor.Cancel();
+        tileProcessor.Cancel();
+        dirtyTiles.Clear();
+        if (tileTexture != null) UnityEngine.Object.Destroy(tileTexture);
         miniMapMarkers.Clear();
         if (playerCamera != null)
         {

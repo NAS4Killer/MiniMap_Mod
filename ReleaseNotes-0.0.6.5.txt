@@ -1,0 +1,10 @@
+MiniMap_Mod 0.0.6.5
+Autor: NAS4Killer
+
+- Geänderte Kartenbereiche in 64×64-Pixel-Kacheln statt als vollständige Textur lesen und verarbeiten.
+- Neue Kartenstreifen und Änderungen beim Spieler werden gesammelt; maximal vier Kacheln pro Frame, mit 2-ms-Zielbudget.
+- Gelände-Randverlauf verarbeitet 12 Pixel Umgebung jeder Kachel, einschließlich umlaufender Texturgrenzen.
+- Kleine Kacheln werden hochgeladen und per Graphics.CopyTexture in die Anzeigetextur übernommen.
+- Bei fehlender GPU-Kopierunterstützung bleibt eine vollständige Übertragung als Rückfall erhalten.
+- Vollständige Aktualisierungen beim Laden oder Einstellungswechsel bleiben auf mehrere Frames verteilt.
+- CPU-Laufzeitmessungen bleiben für den Vergleich aktiv.

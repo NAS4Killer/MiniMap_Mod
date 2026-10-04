@@ -12,7 +12,8 @@ Noch nicht umgesetzt:
 - Koordinaten einschließlich Höhe.
 - Himmelsrichtungen N, W, O und S.
 - Wählbares F5-Verhalten (0.0.6.1).
-- Spieler und Originalkarten-Symbole (0.0.6.2; Spieltest noch offen).
+- Spieler und Originalkarten-Symbole (seit 0.0.6.2).
+- Performance-Optimierung einschließlich Kachelupdates (0.1.0.0; vom Nutzer vorerst als erledigt bewertet).
 
 ## Später: Standalone-MiniMap
 

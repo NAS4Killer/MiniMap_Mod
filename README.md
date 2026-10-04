@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.0.6.4**
+Version: **0.1.0.0**
 
 ## Installation
 
@@ -55,7 +55,9 @@ Die vorhandene Ingame-Karte wird als kleine HUD-MiniMap wiederverwendet. Angezei
 
 ## Technischer Stand
 
-- Performance: Farbverarbeitung nutzt vorberechnete Tabellen. Farben und Gelände-Randverlauf werden mit einem Arbeits- und Zeitbudget auf mehrere Frames verteilt; die alte vollständige Darstellung bleibt bis zum Abschluss erhalten. Chunkwechsel aktualisieren neue Kartenstreifen und die direkte Umgebung statt automatisch die gesamte Karte. Bei Minimap AUS pausieren Kartenberechnung und Marker. Zusammengefasste CPU-Messungen erscheinen weiterhin alle 10 Sekunden im Spiellog; „PixelFarben“ umfasst nun alle verteilten Verarbeitungsschritte einschließlich Gelände-Randverlauf.
+- Teilaktualisierung: bei normalen Chunkwechseln werden nur geänderte 64×64-Pixel-Kacheln gelesen, bearbeitet und per GPU-Kopie übertragen. Der Gelände-Randverlauf liest 12 Pixel Umgebung mit, um Kachelnähte zu vermeiden. Ohne GPU-Kopierunterstützung bleibt eine vollständige Übertragung als Rückfall erhalten. Laden, Einstellungswechsel und vollständige Neuzeichnungen nutzen weiterhin die verteilte Gesamtverarbeitung.
+
+- Performance: Farbverarbeitung nutzt vorberechnete Tabellen. Farben und Gelände-Randverlauf werden mit einem Arbeits- und Zeitbudget auf mehrere Frames verteilt; die alte vollständige Darstellung bleibt bis zum Abschluss erhalten. Chunkwechsel aktualisieren neue Kartenstreifen und die direkte Umgebung statt automatisch die gesamte Karte. Bei Minimap AUS pausieren Kartenberechnung und Marker. Die temporären Laufzeitmessungen und PERF-Logmeldungen sind entfernt.
 
 - `XUiC_MapArea` ist erweiterbar und besitzt bereits Kartentextur, lokalen Spieler und Zentrierungslogik.
 - Fuer die erste Version ist keine Server-Mod erforderlich.
@@ -78,6 +80,9 @@ Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
 
 - Einzelne Markertypen abschaltbar machen.
 - Entfernte Marker am Kartenrand anzeigen.
+- Permanente zweite Minimap.
+- Standalone-Minimap ohne Serverinstallation.
+- Zuschaltbares Erz-Radar.
 
 ## Updates
 

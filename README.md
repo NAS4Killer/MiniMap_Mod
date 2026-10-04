@@ -40,7 +40,7 @@ Für diese Version sind **eine Installation auf jedem Spieler-PC und die UI-Date
 
 1. Den Dedicated Server vollständig stoppen.
 2. Dieselbe Release-ZIP wie auf den Spieler-PCs herunterladen und entpacken.
-3. Im `Mods`-Ordner der **Serverinstallation** den Ordner `MiniMap_Mod` anlegen. Bei Docker den eingebundenen Serverdatei-Ordner verwenden, nicht die lokale PC-Spielinstallation.
+3. Im `Mods`-Ordner der **Serverinstallation** den Ordner `MiniMap_Mod` anlegen. Die Anleitung gilt unabhängig davon, wo und wie der Server installiert ist.
 4. Aus der ZIP diese drei Dateien mit den Unterordnern übernehmen:
 
 ```text

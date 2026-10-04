@@ -16,6 +16,8 @@ Minimap-Optionen:
 
 ## Installation
 
+**Hinweis:** Nutzung auf eigene Gefahr. Vor Installation und Updates Spielstände und Serverdaten sichern.
+
 ### Singleplayer
 
 1. Spiel vollständig beenden.

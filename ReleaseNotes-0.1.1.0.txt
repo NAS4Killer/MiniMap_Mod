@@ -1,0 +1,8 @@
+MiniMap_Mod 0.1.1.0
+Autor: NAS4Killer
+
+- Stärkeres Hineinzoomen: bei Stufe 10 halbierter Kartenausschnitt gegenüber 0.1.0.2.
+- Gleichmäßige Vergrößerungsschritte bei unveränderten Zoomstufen 0, 2, 4, 6, 8 und 10.
+- Zoom und weitere Anzeigeoptionen werden direkt im offenen Menü sichtbar, ohne das Menü verlassen zu müssen.
+- Äußerer Randverlauf für Kreis und Quadrat mit Kriegsnebel AN und AUS.
+- Ohne Kriegsnebel bleibt zusätzlich der Verlauf an den Grenzen des erkundeten Geländes erhalten.

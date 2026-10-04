@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.1.0.2**
+Version: **0.1.1.0**
 
 ## Bilder
 
@@ -73,7 +73,7 @@ Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls.
 - **Kriegsnebel:** an zeigt unbekannte Bereiche grau; aus macht diese vollständig transparent. Unbekanntes Gelände wird dadurch nicht aufgedeckt. Die Erkundung wird beim Chunkwechsel aktualisiert.
 - **Helligkeit:** 10 bis 100 Prozent, nur für die Karte.
 - **Kartentransparenz:** an/aus; 1 bis 10 Prozent in 1-Prozent-Schritten. Aus bedeutet vollständig deckend.
-- **Randverlauf:** an/aus. Mit Kriegsnebel am äußeren Kartenrand, ohne Kriegsnebel am Übergang zwischen erkundetem und unbekanntem Gelände.
+- **Randverlauf:** an/aus. Bei Kreis und Quadrat wird der äußere Kartenrand weich ausgeblendet, mit und ohne Kriegsnebel. Ohne Kriegsnebel bleibt zusätzlich der Verlauf am Übergang zwischen erkundetem und unbekanntem Gelände erhalten.
 - **Karte Norden:** an hält Norden oben; aus dreht die Karte und hält den Spielerpfeil nach oben.
 - **Koordinaten:** an/aus; eine Zeile über oder unter der Karte. X und Y zeigen die Kartenposition, Z die Höhe in Metern.
 - **N–S–O–W:** an/aus; Himmelsrichtungen am Kartenrand. Bei drehender Karte folgen ihre Positionen der Kartenausrichtung.

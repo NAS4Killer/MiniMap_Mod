@@ -104,7 +104,7 @@
 
       <label pos="30,-510" width="170" height="32" text="F5-Verhalten" font_size="24" color="255,255,255,255" />
       <simplebutton name="f5Mode" pos="220,-506" width="280" height="34" caption="Direkt ins Menü" font_size="20" />
-      <label name="miniMapVersion" pos="285,-558" width="280" height="32" text="Version 0.1.0.2" font_size="22" justify="center" color="255,255,255,255" />
+      <label name="miniMapVersion" pos="285,-558" width="280" height="32" text="Version 0.1.1.0" font_size="22" justify="center" color="255,255,255,255" />
       <simplebutton name="miniMapUpdate" pos="285,-594" width="280" height="34" caption="Github" font_size="20" />
       <simplebutton name="miniMapReleaseNotes" pos="285,-634" width="280" height="34" caption="Release Notes" font_size="20" visible="false" />
       <label name="miniMapUpdateStatus" pos="285,-674" width="280" height="20" text="" font_size="16" justify="center" color="180,180,180,255" />

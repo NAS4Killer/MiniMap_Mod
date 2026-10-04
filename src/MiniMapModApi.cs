@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.1.0.2";
+    public const string Version = "0.1.1.0";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
@@ -334,6 +334,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         UpdateDirections(player, mapVisible);
         if ((!MiniMapPreferences.Enabled && !settingsSnapshotRequested) || !isOpen || player == null)
         {
+            if (isOpen) UpdateMapViews(deltaTime);
             miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
                 mapHeading, zoomScale, MiniMapPreferences.MapSize, false);
             return;
@@ -349,6 +350,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             int previewBorder = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
             miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
                 mapHeading, zoomScale, MiniMapPreferences.MapSize - previewBorder * 2, mapVisible && isOpen);
+            UpdateMapViews(deltaTime);
             return;
         }
         bool redrawWasPending = bShouldRedrawMap;
@@ -388,6 +390,13 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         int markerBorder = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
         miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
             mapHeading, zoomScale, MiniMapPreferences.MapSize - markerBorder * 2, mapVisible && isOpen);
+    }
+
+    private void UpdateMapViews(float deltaTime)
+    {
+        // Apply queued positions, sizes, colors and visibility without XUiC_MapArea's map work.
+        if (ViewComponent != null && ViewComponent.IsVisible) ViewComponent.Update(deltaTime);
+        for (int i = 0; i < Children.Count; i++) Children[i].Update(deltaTime);
     }
 
     private void UpdateCoordinates(EntityPlayerLocal player, bool mapVisible)
@@ -502,8 +511,10 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             panel.ClippingSize = new Vector2(innerSize, innerSize);
             panel.ClippingCenter = new Vector2(innerSize / 2f, -innerSize / 2f);
         }
-        zoomScale = Mathf.Lerp(6.15f, 0.7f, MiniMapPreferences.Zoom / 10f);
+        // Equal multiplicative changes in the visible magnification between menu steps.
+        zoomScale = 6.15f * Mathf.Pow(0.35f / 6.15f, MiniMapPreferences.Zoom / 10f);
         targetZoomScale = zoomScale;
+        mapScale = 336f * zoomScale / 2048f;
         // Always retain the source exploration alpha. FogEnabled changes only its presentation.
         // Disabling this mask makes previously masked pixels opaque and loses the transparency boundary.
         bFowMaskEnabled = !GameManager.Instance.IsEditMode();
@@ -574,6 +585,12 @@ public class XUiC_MiniMapArea : XUiC_MapArea
                 mapScale, mapScale);
         }
         else xuiTexture.UVRect = new Rect(mapPos.x, mapPos.y, mapScale, mapScale);
+        // Apply UV changes directly as well: the cached-menu path skips the normal view update.
+        if (xuiTexture.uiTexture.uvRect != xuiTexture.UVRect)
+        {
+            xuiTexture.uiTexture.uvRect = xuiTexture.UVRect;
+            xuiTexture.uiTexture.MarkAsChanged();
+        }
     }
 
     private void RefreshPlayerChunks(Vector2i chunk, Vector3 position)
@@ -718,7 +735,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         uvs.RemoveRange(offset, uvs.Count - offset);
         colors.RemoveRange(offset, colors.Count - offset);
         const int segments = 256;
-        bool viewportFade = MiniMapPreferences.EdgeFade && MiniMapPreferences.FogEnabled;
+        bool viewportFade = MiniMapPreferences.EdgeFade;
         int rings = viewportFade ? 12 : 1;
         float angle = isMap ? -mapHeading * Mathf.Deg2Rad : 0f;
         float cos = Mathf.Cos(angle), sin = Mathf.Sin(angle);

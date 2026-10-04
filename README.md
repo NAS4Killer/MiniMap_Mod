@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.0.6.0**
+Version: **0.0.6.1**
 
 ## Installation
 
@@ -17,7 +17,7 @@ Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
 
 ## Bedienung
 
-**F5** öffnet und schließt das Optionsmenü. **ESC** schließt es ebenfalls. Änderungen werden gespeichert.
+**F5-Verhalten** ist im Menü wählbar: „Direkt ins Menü“ öffnet und schließt die Optionen mit F5 (Standard). „Ein/Aus + Doppel-F5“ blendet mit einmal F5 die Minimap ein/aus und öffnet mit zweimal F5 innerhalb von 0,3 Sekunden die Optionen. Der einzelne Tastendruck wird deshalb erst nach dieser kurzen Wartezeit ausgeführt. Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls. Änderungen werden gespeichert.
 
 - **Minimap:** an/aus. Im Escape-Menü wird die Karte ausgeblendet.
 - **Zoomfaktor:** 0, 2, 4, 6, 8 oder 10; größere Werte zoomen näher heran.

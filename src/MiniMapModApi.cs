@@ -18,7 +18,8 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.0.6.0";
+    public const string Version = "0.0.6.1";
+    public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
     public static int ArrowSize = 40;
@@ -59,6 +60,7 @@ internal static class MiniMapPreferences
                 string key = parts[0].Trim();
                 string value = parts[1].Trim();
                 if (key == "Enabled") bool.TryParse(value, out Enabled);
+                else if (key == "F5ToggleMode") F5ToggleMode = value == "1";
                 else if (key == "Zoom") Zoom = ParseFloat(value, Zoom);
                 else if (key == "ArrowSize") ArrowSize = ParseInt(value, ArrowSize);
                 else if (key == "MapSize") MapSize = ParseInt(value, MapSize);
@@ -96,6 +98,7 @@ internal static class MiniMapPreferences
             File.WriteAllLines(SettingsPath, new[]
             {
                 "Enabled=" + Enabled,
+                "F5ToggleMode=" + (F5ToggleMode ? "1" : "0"),
                 "Zoom=" + Zoom.ToString("0.0", CultureInfo.InvariantCulture),
                 "ArrowSize=" + ArrowSize,
                 "MapSize=" + MapSize,
@@ -168,6 +171,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private bool makeMapOpaqueAfterRedraw;
     private float mapHeading;
     private Texture2D displayMapTexture;
+    private readonly MiniMapF5Input f5Input = new MiniMapF5Input();
 
     public override void Init()
     {
@@ -213,6 +217,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public override void OnClose()
     {
+        f5Input.Reset();
         if (playerCamera != null)
         {
             playerCamera.PreRender -= OnPreRender;
@@ -232,7 +237,17 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             MakeKnownMapOpaque();
             makeMapOpaqueAfterRedraw = false;
         }
-        if (Input.GetKeyDown(KeyCode.F5)) ToggleSettings();
+        GUIWindowManager inputManager = xui.playerUI.windowManager;
+        int f5Action = f5Input.Update(Time.unscaledTime, Input.GetKeyDown(KeyCode.F5),
+            MiniMapPreferences.F5ToggleMode, inputManager.IsWindowOpen("miniMapSettings"),
+            isOpen && !inputManager.IsWindowOpen("ingameMenu"));
+        if (f5Action == 2) ToggleSettings();
+        else if (f5Action == 1)
+        {
+            MiniMapPreferences.Enabled = !MiniMapPreferences.Enabled;
+            MiniMapPreferences.Save();
+            ApplyPreferences();
+        }
 
         if (xui.playerUI.windowManager.IsWindowOpen("miniMapSettings") && xui.playerUI.windowManager.IsWindowOpen("map"))
             xui.playerUI.windowManager.Close("map");
@@ -644,6 +659,7 @@ public class XUiC_MiniMapSettings : XUiController
     {
         base.Init();
         Bind("miniMapToggle", delegate { MiniMapPreferences.Enabled = !MiniMapPreferences.Enabled; Changed(); });
+        Bind("f5Mode", delegate { MiniMapPreferences.F5ToggleMode = !MiniMapPreferences.F5ToggleMode; Changed(); });
         Bind("zoomDown", delegate { MiniMapPreferences.Zoom -= 2f; Changed(); });
         Bind("zoomUp", delegate { MiniMapPreferences.Zoom += 2f; Changed(); });
         Bind("arrowDown", delegate { MiniMapPreferences.ArrowSize -= 4; Changed(); });
@@ -720,7 +736,7 @@ public class XUiC_MiniMapSettings : XUiController
         if (hint?.ViewComponent != null)
         {
             hint.ViewComponent.IsVisible = positionHint.Length > 0;
-            hint.ViewComponent.Position = new Vector2i(170, MiniMapUpdater.ReleaseNotesUrl != null ? -630 : -594);
+            hint.ViewComponent.Position = new Vector2i(170, MiniMapUpdater.ReleaseNotesUrl != null ? -670 : -634);
         }
         SetLabel("positionHint", positionHint);
         if (GetChildById("miniMapUpdateStatus")?.ViewComponent != null)
@@ -757,6 +773,7 @@ public class XUiC_MiniMapSettings : XUiController
     private void RefreshValues()
     {
         SetLabel("miniMapVersion", "Version " + MiniMapPreferences.Version);
+        SetButtonText("f5Mode", MiniMapPreferences.F5ToggleMode ? "Ein/Aus + Doppel-F5" : "Direkt ins Menü");
         SetButtonText("miniMapToggle", MiniMapPreferences.Enabled ? "AN" : "AUS");
         SetLabel("zoomValue", MiniMapPreferences.Zoom.ToString("0", CultureInfo.InvariantCulture) + "x");
         SetLabel("arrowValue", MiniMapPreferences.ArrowSize.ToString(CultureInfo.InvariantCulture));

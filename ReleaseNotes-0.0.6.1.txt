@@ -1,0 +1,8 @@
+MiniMap_Mod 0.0.6.1
+Autor: NAS4Killer
+
+- Neue gespeicherte Option F5-Verhalten.
+- Direkt ins Menü: F5 öffnet oder schließt die Optionen wie bisher (Standard).
+- Ein/Aus + Doppel-F5: F5 schaltet die Minimap; zweimal F5 innerhalb von 0,3 Sekunden öffnet die Optionen, ohne die Karte umzuschalten.
+- F5 und ESC schließen das geöffnete Optionsmenü.
+- Menühöhe für die zusätzliche Zeile angepasst; Version und GitHub bleiben zentriert.

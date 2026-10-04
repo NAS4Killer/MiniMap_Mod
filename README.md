@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.0.6.1**
+Version: **0.0.6.4**
 
 ## Installation
 
@@ -37,7 +37,7 @@ Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
 - **Github:** öffnet die Projektseite, wenn kein Update verfügbar ist. Beim ersten Öffnen des Menüs wird automatisch geprüft. Ein neues Release erscheint als grünes **Download + Version**, nach dem Download als grünes **Installieren + Version**.
 - **Release Notes:** erscheint unter dem Updatebutton, wenn ein Update verfügbar ist, und öffnet die Releasebeschreibung genau dieser Version auf GitHub.
 
-Andere Spieler und Symbole der originalen Karte werden noch nicht angezeigt.
+Die Minimap zeigt die vom Spiel für die Originalkarte bereitgestellten Marker, einschließlich anderer sichtbarer Spieler, Wegpunkte und weiterer Kartensymbole. Die Sichtbarkeitsregeln der Originalkarte bleiben erhalten: versteckte oder vom Spiel nicht bereitgestellte Spieler werden nicht aufgedeckt. Marker werden laufend aktualisiert, folgen Zoom und Kartendrehung und erscheinen nur innerhalb der Minimap. Namen werden in dieser ersten Umsetzung nicht eingeblendet.
 
 Die sichtbare Kategorie **Sonstiges** enthält Karte Norden, Himmelsrichtungen,
 Randverlauf und Kriegsnebel. Alle Bedienzeilen haben dieselbe Gesamtbreite;
@@ -54,6 +54,8 @@ Mod-Installationen vermeiden.
 Die vorhandene Ingame-Karte wird als kleine HUD-MiniMap wiederverwendet. Angezeigt wird nur der lokale Spieler.
 
 ## Technischer Stand
+
+- Performance: Farbverarbeitung nutzt vorberechnete Tabellen. Farben und Gelände-Randverlauf werden mit einem Arbeits- und Zeitbudget auf mehrere Frames verteilt; die alte vollständige Darstellung bleibt bis zum Abschluss erhalten. Chunkwechsel aktualisieren neue Kartenstreifen und die direkte Umgebung statt automatisch die gesamte Karte. Bei Minimap AUS pausieren Kartenberechnung und Marker. Zusammengefasste CPU-Messungen erscheinen weiterhin alle 10 Sekunden im Spiellog; „PixelFarben“ umfasst nun alle verteilten Verarbeitungsschritte einschließlich Gelände-Randverlauf.
 
 - `XUiC_MapArea` ist erweiterbar und besitzt bereits Kartentextur, lokalen Spieler und Zentrierungslogik.
 - Fuer die erste Version ist keine Server-Mod erforderlich.
@@ -74,8 +76,8 @@ Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
 
 ## Zukunfts-ToDo
 
-- Andere Spieler auf der MiniMap anzeigen.
-- Symbole der originalen Karte anzeigen.
+- Einzelne Markertypen abschaltbar machen.
+- Entfernte Marker am Kartenrand anzeigen.
 
 ## Updates
 

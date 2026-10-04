@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.0.6.1";
+    public const string Version = "0.0.6.4";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
@@ -172,6 +172,14 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private float mapHeading;
     private Texture2D displayMapTexture;
     private readonly MiniMapF5Input f5Input = new MiniMapF5Input();
+    private readonly MiniMapMarkers miniMapMarkers = new MiniMapMarkers();
+    private readonly MiniMapPerformance performance = new MiniMapPerformance();
+    private float nextPerformanceReport;
+    private readonly MiniMapPixelProcessor pixelProcessor = new MiniMapPixelProcessor();
+    private bool pixelsDirty = true;
+    private Vector2 pendingTextureCenter, pendingTextureScroll;
+    private Vector2 displayTextureCenter, displayTextureScroll;
+    private Color32[] pixelBuffer;
 
     public override void Init()
     {
@@ -218,6 +226,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     public override void OnClose()
     {
         f5Input.Reset();
+        pixelProcessor.Cancel();
+        miniMapMarkers.Clear();
         if (playerCamera != null)
         {
             playerCamera.PreRender -= OnPreRender;
@@ -230,13 +240,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public override void Update(float deltaTime)
     {
-        bool redrawWasPending = bShouldRedrawMap;
-        base.Update(deltaTime);
-        if (redrawWasPending || makeMapOpaqueAfterRedraw || displayMapTexture == null)
-        {
-            MakeKnownMapOpaque();
-            makeMapOpaqueAfterRedraw = false;
-        }
+        long frameStart = System.Diagnostics.Stopwatch.GetTimestamp();
         GUIWindowManager inputManager = xui.playerUI.windowManager;
         int f5Action = f5Input.Update(Time.unscaledTime, Input.GetKeyDown(KeyCode.F5),
             MiniMapPreferences.F5ToggleMode, inputManager.IsWindowOpen("miniMapSettings"),
@@ -260,13 +264,29 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         EntityPlayerLocal player = GameManager.Instance?.World?.GetPrimaryPlayer();
         UpdateCoordinates(player, mapVisible);
         UpdateDirections(player, mapVisible);
+        if (!MiniMapPreferences.Enabled || !isOpen || player == null)
+        {
+            miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
+                mapHeading, zoomScale, MiniMapPreferences.MapSize, false);
+            performance.Record(0, frameStart);
+            return;
+        }
+        bool redrawWasPending = bShouldRedrawMap;
+        long baseStart = System.Diagnostics.Stopwatch.GetTimestamp();
+        base.Update(deltaTime);
+        performance.Record(1, baseStart);
+        if (redrawWasPending || makeMapOpaqueAfterRedraw) pixelsDirty = true;
+        makeMapOpaqueAfterRedraw = false;
         if (player != null)
         {
             Vector2i currentPlayerChunk = World.toChunkXZ(player.position);
             if (currentPlayerChunk != lastPlayerChunk)
             {
                 lastPlayerChunk = currentPlayerChunk;
-                bShouldRedrawMap = true;
+                long chunkStart = System.Diagnostics.Stopwatch.GetTimestamp();
+                RefreshPlayerChunks(currentPlayerChunk, player.position);
+                performance.Record(1, chunkStart);
+                pixelsDirty = true;
             }
 
             if (!centeredOnce)
@@ -279,6 +299,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
                 mapMiddlePosPixel = new Vector2(player.position.x, player.position.z);
                 positionMap();
             }
+            MakeKnownMapOpaque();
             UpdateMapRendering();
             float heading = MiniMapPreferences.NorthUp ? 0f : player.rotation.y;
             if (!Mathf.Approximately(mapHeading, heading))
@@ -287,6 +308,18 @@ public class XUiC_MiniMapArea : XUiC_MapArea
                 xuiTexture.uiTexture.MarkAsChanged();
             }
             if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f, MiniMapPreferences.NorthUp ? -player.rotation.y : 0f);
+        }
+        int markerBorder = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
+        long markerStart = System.Diagnostics.Stopwatch.GetTimestamp();
+        miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
+            mapHeading, zoomScale, MiniMapPreferences.MapSize - markerBorder * 2, mapVisible && isOpen);
+        performance.Record(6, markerStart);
+        performance.Record(0, frameStart);
+        if (nextPerformanceReport == 0f) nextPerformanceReport = Time.unscaledTime + 10f;
+        if (Time.unscaledTime >= nextPerformanceReport)
+        {
+            Debug.Log(performance.Report(MiniMapPreferences.Enabled, MiniMapPreferences.FogEnabled, MiniMapPreferences.EdgeFade));
+            nextPerformanceReport = Time.unscaledTime + 10f;
         }
     }
 
@@ -332,6 +365,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public void ApplyPreferences()
     {
+        pixelProcessor.Cancel();
+        pixelsDirty = true;
         int size = MiniMapPreferences.MapSize;
         int borderWidth = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
         int innerSize = size - borderWidth * 2;
@@ -435,52 +470,72 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         }
         if (xuiTexture.Material != transparentMapMaterial) xuiTexture.Material = transparentMapMaterial;
         if (displayMapTexture != null) xuiTexture.Texture = displayMapTexture;
-        xuiTexture.UVRect = new Rect(mapPos.x, mapPos.y, mapScale, mapScale);
+        if (displayMapTexture != null)
+        {
+            float halfMargin = (2048f - 336f * zoomScale) * 0.5f;
+            xuiTexture.UVRect = new Rect(
+                (halfMargin + mapMiddlePosPixel.x - displayTextureCenter.x) / 2048f + displayTextureScroll.x,
+                (halfMargin + mapMiddlePosPixel.y - displayTextureCenter.y) / 2048f + displayTextureScroll.y,
+                mapScale, mapScale);
+        }
+        else xuiTexture.UVRect = new Rect(mapPos.x, mapPos.y, mapScale, mapScale);
+    }
+
+    private void RefreshPlayerChunks(Vector2i chunk, Vector3 position)
+    {
+        int dx = chunk.x - Mathf.FloorToInt(mapMiddlePosChunks.x / 16f);
+        int dz = chunk.y - Mathf.FloorToInt(mapMiddlePosChunks.y / 16f);
+        if (Math.Abs(dx) >= 128 || Math.Abs(dz) >= 128)
+        {
+            PositionMapAt(position);
+            return;
+        }
+        if (dx != 0 || dz != 0)
+        {
+            mapMiddlePosChunks += new Vector2(dx * 16f, dz * 16f);
+            updateMapForScroll(dx, dz);
+        }
+        // Refresh the explored chunk and its neighbours: their fog boundaries can also change.
+        int startX = (chunk.x - 1) * 16, startZ = (chunk.y - 1) * 16;
+        int textureX = Utils.WrapIndex(startX - (int)mapMiddlePosChunks.x + 1024 + mapScrollTextureChunksOffsetX * 16, 2048);
+        int textureZ = Utils.WrapIndex(startZ - (int)mapMiddlePosChunks.y + 1024 + mapScrollTextureChunksOffsetZ * 16, 2048);
+        updateMapSection(startX, startZ, startX + 48, startZ + 48,
+            textureX, textureZ, Utils.WrapIndex(textureX + 48, 2048), Utils.WrapIndex(textureZ + 48, 2048));
+        mapTexture.Apply(false, false);
     }
 
     private void MakeKnownMapOpaque()
     {
-        Color32[] pixels = mapTexture.GetPixels32();
-        int width = mapTexture.width, height = mapTexture.height;
-        int[] distance = null;
-        if (MiniMapPreferences.EdgeFade && !MiniMapPreferences.FogEnabled)
+        if (!pixelProcessor.Running)
         {
-            distance = new int[pixels.Length];
-            for (int i = 0; i < distance.Length; i++) distance[i] = pixels[i].a == 0 ? 0 : 32;
-            // Two distance passes fade known pixels toward their nearest unexplored neighbor.
-            for (int y = 0; y < height; y++) for (int x = 0; x < width; x++)
-            {
-                int i = y * width + x;
-                if (x > 0) distance[i] = Math.Min(distance[i], distance[i - 1] + 1);
-                if (y > 0) distance[i] = Math.Min(distance[i], distance[i - width] + 1);
-            }
-            for (int y = height - 1; y >= 0; y--) for (int x = width - 1; x >= 0; x--)
-            {
-                int i = y * width + x;
-                if (x + 1 < width) distance[i] = Math.Min(distance[i], distance[i + 1] + 1);
-                if (y + 1 < height) distance[i] = Math.Min(distance[i], distance[i + width] + 1);
-            }
+            if (!pixelsDirty && displayMapTexture != null) return;
+            long readStart = System.Diagnostics.Stopwatch.GetTimestamp();
+            if (pixelBuffer == null || pixelBuffer.Length != mapTexture.width * mapTexture.height)
+                pixelBuffer = new Color32[mapTexture.width * mapTexture.height];
+            mapTexture.GetRawTextureData<Color32>().CopyTo(pixelBuffer);
+            pixelProcessor.Begin(pixelBuffer, mapTexture.width,
+                MiniMapPreferences.FogEnabled, MiniMapPreferences.EdgeFade);
+            performance.Record(2, readStart);
+            pendingTextureCenter = mapMiddlePosChunks;
+            pendingTextureScroll = mapScrollTextureOffset;
+            pixelsDirty = false;
         }
-        for (int i = 0; i < pixels.Length; i++)
-        {
-            if (MiniMapPreferences.FogEnabled)
-            {
-                float a = pixels[i].a / 255f;
-                pixels[i].r = (byte)Mathf.Lerp(210f, pixels[i].r, a);
-                pixels[i].g = (byte)Mathf.Lerp(210f, pixels[i].g, a);
-                pixels[i].b = (byte)Mathf.Lerp(210f, pixels[i].b, a);
-                pixels[i].a = 255;
-            }
-            else if (pixels[i].a > 0)
-                pixels[i].a = distance == null ? (byte)255 : (byte)(255f * Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(distance[i] / 12f)));
-        }
+        long stageStart = System.Diagnostics.Stopwatch.GetTimestamp();
+        bool finished = pixelProcessor.Step();
+        performance.Record(4, stageStart);
+        if (!finished) return;
+        stageStart = System.Diagnostics.Stopwatch.GetTimestamp();
         if (displayMapTexture == null)
         {
-            displayMapTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            displayMapTexture = new Texture2D(mapTexture.width, mapTexture.height, TextureFormat.RGBA32, false);
             displayMapTexture.wrapMode = TextureWrapMode.Repeat;
         }
-        displayMapTexture.SetPixels32(pixels);
+        displayMapTexture.SetPixels32(pixelProcessor.Pixels);
         displayMapTexture.Apply(false, false);
+        displayTextureCenter = pendingTextureCenter;
+        displayTextureScroll = pendingTextureScroll;
+        pixelProcessor.Cancel();
+        performance.Record(5, stageStart);
     }
 
     private void MarkShapeGeometryChanged()
@@ -635,6 +690,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public override void Cleanup()
     {
+        pixelProcessor.Cancel();
+        miniMapMarkers.Clear();
         if (playerCamera != null)
         {
             playerCamera.PreRender -= OnPreRender;

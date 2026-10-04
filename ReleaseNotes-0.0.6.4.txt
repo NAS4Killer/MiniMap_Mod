@@ -1,0 +1,10 @@
+MiniMap_Mod 0.0.6.4
+Autor: NAS4Killer
+
+- Vorberechnete Farbtabellen ersetzen die teure Berechnung pro Kartenpixel.
+- Pixel- und Randabstandspuffer werden wiederverwendet statt je Aktualisierung große Arrays anzulegen.
+- Pixelverarbeitung und Gelände-Randverlauf auf mehrere Frames verteilt (2 ms Zielbudget, maximal 262144 Pixel-Schritte pro Frame).
+- Vorige fertige Kartentextur bleibt während der Verarbeitung erhalten; Texturkoordinaten berücksichtigen ihren Kartenursprung.
+- Chunkwechsel aktualisieren Kartenstreifen und die Umgebung des Spielers statt automatisch eine vollständige Neuzeichnung anzufordern.
+- Bei Minimap AUS pausieren Kartenberechnung und Marker; F5 bleibt bedienbar.
+- Diagnosemessungen bleiben zum Vergleich aktiviert. PixelFarben umfasst jetzt auch die verteilten Randverlaufsschritte.

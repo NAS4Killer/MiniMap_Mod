@@ -1,0 +1,10 @@
+MiniMap_Mod 0.0.6.2
+Autor: NAS4Killer
+
+- Spieler und Kartensymbole aus der gemeinsamen Markerliste der Originalkarte übernommen.
+- Bestehende Sichtbarkeitsregeln bleiben erhalten; keine Aufdeckung versteckter Spieler.
+- Marker folgen Position, Zoom und Kartendrehung, mit Originalsymbolen und Farben.
+- Marker bleiben innerhalb von Kreis oder Quadrat; keine Randmarker in dieser Version.
+- Eigener Spieler wird weiterhin nur durch den bisherigen Spielerpfeil angezeigt.
+- Marker werden beim Schließen oder Verlassen aufgeräumt.
+- Spätere Ideen: abschaltbare Markertypen und entfernte Marker am Kartenrand.

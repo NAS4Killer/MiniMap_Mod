@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="Unity.Collections">
+      <HintPath>$(GameDir)\7DaysToDie_Data\Managed\Unity.Collections.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <EmbeddedResource Include="UpdateInstaller.ps1" LogicalName="MiniMapMod.UpdateInstaller.ps1" />
     <Reference Include="NGUI">
       <HintPath>$(GameDir)\7DaysToDie_Data\Managed\NGUI.dll</HintPath>

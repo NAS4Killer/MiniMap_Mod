@@ -16,14 +16,49 @@ Minimap-Optionen:
 
 ## Installation
 
+### Singleplayer
+
 1. Spiel vollständig beenden.
 2. ZIP beim [neuesten Release](https://github.com/NAS4Killer/MiniMap_Mod/releases/latest) herunterladen und entpacken.
 3. Den enthaltenen Ordner `MiniMap_Mod` in den `Mods`-Ordner der Spielinstallation kopieren. Bei Bedarf `Mods` anlegen.
 4. Direkt unter `Mods/MiniMap_Mod/` müssen `ModInfo.xml`, `MiniMap_Mod.dll` und der Unterordner `Config` liegen. Keine zusätzliche ZIP-Unterordnerebene verwenden.
 5. Spiel ohne Easy Anti-Cheat starten, Spielstand laden und mit **F5** die Optionen öffnen.
 
-Jeder Client, der die MiniMap nutzen möchte, installiert sie selbst. Nur eine
-Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
+Im Singleplayer genügt diese Installation auf dem eigenen PC.
+
+### Dedicated Server
+
+Für diese Version sind **eine Installation auf jedem Spieler-PC und die UI-Dateien auf dem Server** erforderlich. Eine Installation nur auf dem Server ersetzt die Client-Installation nicht.
+
+#### Auf jedem Spieler-PC
+
+1. Die vollständige Mod wie unter **Singleplayer** installieren: den gesamten Ordner `MiniMap_Mod` aus der Release-ZIP nach `<Spielinstallation>/Mods/` kopieren.
+2. Das Spiel ohne Easy Anti-Cheat starten.
+3. Nach der Serverinstallation und dem Serverneustart verbinden und mit **F5** die Minimap-Optionen öffnen.
+
+#### Auf dem Server
+
+1. Den Dedicated Server vollständig stoppen.
+2. Dieselbe Release-ZIP wie auf den Spieler-PCs herunterladen und entpacken.
+3. Im `Mods`-Ordner der **Serverinstallation** den Ordner `MiniMap_Mod` anlegen. Bei Docker den eingebundenen Serverdatei-Ordner verwenden, nicht die lokale PC-Spielinstallation.
+4. Aus der ZIP diese drei Dateien mit den Unterordnern übernehmen:
+
+```text
+<Serverinstallation>/Mods/MiniMap_Mod/
+├── ModInfo.xml
+└── Config/
+    └── XUi_InGame/
+        ├── windows.xml
+        └── xui.xml
+```
+
+5. Für diese Serverinstallation werden nur die oben genannten Dateien benötigt. `MiniMap_Mod.dll` gehört auf die Spieler-PCs; sie wird für die hier beschriebene Serverinstallation nicht kopiert.
+6. Easy Anti-Cheat für den Server deaktivieren und den Dedicated Server wieder starten.
+7. Spieler mit installierter Client-Mod können sich jetzt verbinden.
+
+**Updates:** Auf PC und Server dieselbe Mod-Version verwenden. Der Updatebutton im Spiel aktualisiert nur die lokale Client-Installation. Die drei Serverdateien bei einem Serverupdate manuell aus derselben Release-ZIP ersetzen und den Server neu starten.
+
+Pro Spieler-PC und Server jeweils nur eine Installation von `MiniMap_Mod` verwenden. Keine zusätzliche ZIP-Unterordnerebene oder zweite Kopie in einem anderen Mods-Ordner anlegen.
 
 ## Bedienung
 
@@ -64,7 +99,7 @@ Mit F5 kontrollieren, dass die MiniMap eingeschaltet ist. Doppelte Mod-Installat
 
 ## Erstes Ziel
 
-Die vorhandene Ingame-Karte wird als kleine HUD-MiniMap wiederverwendet. Angezeigt wird nur der lokale Spieler.
+Die vorhandene Ingame-Karte wird als kleine HUD-Minimap wiederverwendet und auf den lokalen Spieler zentriert. Sichtbare andere Spieler und Originalkarten-Symbole werden ebenfalls angezeigt.
 
 ## Technischer Stand
 
@@ -75,7 +110,7 @@ Die vorhandene Ingame-Karte wird als kleine HUD-MiniMap wiederverwendet. Angezei
 - Performance: Farbverarbeitung nutzt vorberechnete Tabellen. Farben und Gelände-Randverlauf werden mit einem Arbeits- und Zeitbudget auf mehrere Frames verteilt; die alte vollständige Darstellung bleibt bis zum Abschluss erhalten. Chunkwechsel aktualisieren neue Kartenstreifen und die direkte Umgebung statt automatisch die gesamte Karte. Bei Minimap AUS pausieren Kartenberechnung und Marker. Die temporären Laufzeitmessungen und PERF-Logmeldungen sind entfernt.
 
 - `XUiC_MapArea` ist erweiterbar und besitzt bereits Kartentextur, lokalen Spieler und Zentrierungslogik.
-- Fuer die erste Version ist keine Server-Mod erforderlich.
+- Im Singleplayer genügt die vollständige Client-Mod. Beim Dedicated Server benötigt diese Version zusätzlich die oben beschriebenen UI-Dateien auf dem Server.
 - Ein erster HUD-Prototyp verwendet `XUiC_MapArea`, zentriert auf den lokalen Spieler.
 
 ## Bauen

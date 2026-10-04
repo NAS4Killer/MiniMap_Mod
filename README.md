@@ -24,8 +24,6 @@ Minimap-Optionen:
 4. Direkt unter `Mods/MiniMap_Mod/` müssen `ModInfo.xml`, `MiniMap_Mod.dll` und der Unterordner `Config` liegen. Keine zusätzliche ZIP-Unterordnerebene verwenden.
 5. Spiel ohne Easy Anti-Cheat starten, Spielstand laden und mit **F5** die Optionen öffnen.
 
-Im Singleplayer genügt diese Installation auf dem eigenen PC.
-
 ### Dedicated Server
 
 Für diese Version sind **eine Installation auf jedem Spieler-PC und die UI-Dateien auf dem Server** erforderlich. Eine Installation nur auf dem Server ersetzt die Client-Installation nicht.
@@ -40,7 +38,7 @@ Für diese Version sind **eine Installation auf jedem Spieler-PC und die UI-Date
 
 1. Den Dedicated Server vollständig stoppen.
 2. Dieselbe Release-ZIP wie auf den Spieler-PCs herunterladen und entpacken.
-3. Im `Mods`-Ordner der **Serverinstallation** den Ordner `MiniMap_Mod` anlegen. Die Anleitung gilt unabhängig davon, wo und wie der Server installiert ist.
+3. Im `Mods`-Ordner der **Serverinstallation** den Ordner `MiniMap_Mod` anlegen.
 4. Aus der ZIP diese drei Dateien mit den Unterordnern übernehmen:
 
 ```text
@@ -52,9 +50,8 @@ Für diese Version sind **eine Installation auf jedem Spieler-PC und die UI-Date
         └── xui.xml
 ```
 
-5. Für diese Serverinstallation werden nur die oben genannten Dateien benötigt. `MiniMap_Mod.dll` gehört auf die Spieler-PCs; sie wird für die hier beschriebene Serverinstallation nicht kopiert.
+5. `MiniMap_Mod.dll` nur auf den Spieler-PCs installieren.
 6. Easy Anti-Cheat für den Server deaktivieren und den Dedicated Server wieder starten.
-7. Spieler mit installierter Client-Mod können sich jetzt verbinden.
 
 **Updates:** Auf PC und Server dieselbe Mod-Version verwenden. Der Updatebutton im Spiel aktualisiert nur die lokale Client-Installation. Die drei Serverdateien bei einem Serverupdate manuell aus derselben Release-ZIP ersetzen und den Server neu starten.
 
@@ -73,7 +70,7 @@ Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls.
 - **Mapform:** Kreis oder Quadrat.
 - **Kriegsnebel:** an zeigt unbekannte Bereiche grau; aus macht diese vollständig transparent. Unbekanntes Gelände wird dadurch nicht aufgedeckt. Die Erkundung wird beim Chunkwechsel aktualisiert.
 - **Helligkeit:** 10 bis 100 Prozent, nur für die Karte.
-- **Kartentransparenz:** an/aus; 1 bis 10 Prozent in 1-Prozent-Schritten. Aus bedeutet vollständig deckend. Alte Prozentwerte werden beim Laden auf den neuen Bereich begrenzt.
+- **Kartentransparenz:** an/aus; 1 bis 10 Prozent in 1-Prozent-Schritten. Aus bedeutet vollständig deckend.
 - **Randverlauf:** an/aus. Mit Kriegsnebel am äußeren Kartenrand, ohne Kriegsnebel am Übergang zwischen erkundetem und unbekanntem Gelände.
 - **Karte Norden:** an hält Norden oben; aus dreht die Karte und hält den Spielerpfeil nach oben.
 - **Koordinaten:** an/aus; eine Zeile über oder unter der Karte. X und Y zeigen die Kartenposition, Z die Höhe in Metern.
@@ -86,32 +83,19 @@ Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls.
 - **Github:** öffnet die Projektseite, wenn kein Update verfügbar ist. Beim ersten Öffnen des Menüs wird automatisch geprüft. Ein neues Release erscheint als grünes **Download + Version**, nach dem Download als grünes **Installieren + Version**.
 - **Release Notes:** erscheint unter dem Updatebutton, wenn ein Update verfügbar ist, und öffnet die Releasebeschreibung genau dieser Version auf GitHub.
 
-Die Minimap zeigt die vom Spiel für die Originalkarte bereitgestellten Marker, einschließlich anderer sichtbarer Spieler, Wegpunkte und weiterer Kartensymbole. Die Sichtbarkeitsregeln der Originalkarte bleiben erhalten: versteckte oder vom Spiel nicht bereitgestellte Spieler werden nicht aufgedeckt. Marker werden laufend aktualisiert, folgen Zoom und Kartendrehung und erscheinen nur innerhalb der Minimap. Namen werden in dieser ersten Umsetzung nicht eingeblendet.
+Die Minimap zeigt andere sichtbare Spieler, Wegpunkte und die Symbole der Originalkarte. Die Sichtbarkeitsregeln des Spiels bleiben erhalten. Marker folgen Zoom und Kartendrehung und erscheinen nur innerhalb der Minimap. Spielernamen werden nicht eingeblendet.
 
-Die sichtbare Kategorie **Sonstiges** enthält Karte Norden, Himmelsrichtungen,
-Randverlauf und Kriegsnebel. Alle Bedienzeilen haben dieselbe Gesamtbreite;
-die Positionstasten und die Schrittweitentasten sind innerhalb ihrer Zeile gleich breit.
+Unter **Sonstiges** stehen Karte Norden, Himmelsrichtungen, Randverlauf und Kriegsnebel.
 
 ## Wenn keine MiniMap erscheint
 
 Ordnerstruktur und Spielversion 3.2 prüfen.
 Mit F5 kontrollieren, dass die MiniMap eingeschaltet ist. Doppelte Mod-Installationen vermeiden.
 
-## Erstes Ziel
-
-Die vorhandene Ingame-Karte wird als kleine HUD-Minimap wiederverwendet und auf den lokalen Spieler zentriert. Sichtbare andere Spieler und Originalkarten-Symbole werden ebenfalls angezeigt.
-
 ## Technischer Stand
 
-- Die Erkundungsmaske bleibt unabhängig von der Kriegsnebel-Option erhalten. Kriegsnebel schaltet nur zwischen grauer und transparenter Darstellung unbekannter Bereiche um; der Randverlauf bleibt eine eigene Option.
-
-- Teilaktualisierung: bei normalen Chunkwechseln werden nur geänderte 64×64-Pixel-Kacheln gelesen, bearbeitet und per GPU-Kopie übertragen. Der Gelände-Randverlauf liest 12 Pixel Umgebung mit, um Kachelnähte zu vermeiden. Ohne GPU-Kopierunterstützung bleibt eine vollständige Übertragung als Rückfall erhalten. Laden, Einstellungswechsel und vollständige Neuzeichnungen nutzen weiterhin die verteilte Gesamtverarbeitung.
-
-- Performance: Farbverarbeitung nutzt vorberechnete Tabellen. Farben und Gelände-Randverlauf werden mit einem Arbeits- und Zeitbudget auf mehrere Frames verteilt; die alte vollständige Darstellung bleibt bis zum Abschluss erhalten. Chunkwechsel aktualisieren neue Kartenstreifen und die direkte Umgebung statt automatisch die gesamte Karte. Bei Minimap AUS pausieren Kartenberechnung und Marker. Die temporären Laufzeitmessungen und PERF-Logmeldungen sind entfernt.
-
-- `XUiC_MapArea` ist erweiterbar und besitzt bereits Kartentextur, lokalen Spieler und Zentrierungslogik.
-- Im Singleplayer genügt die vollständige Client-Mod. Beim Dedicated Server benötigt diese Version zusätzlich die oben beschriebenen UI-Dateien auf dem Server.
-- Ein erster HUD-Prototyp verwendet `XUiC_MapArea`, zentriert auf den lokalen Spieler.
+- Beim Erkunden werden geänderte Kartenbereiche in kleinen Kacheln aktualisiert. Bei ausgeschalteter Minimap pausieren Kartenberechnung und Markeraktualisierung.
+- Beim Öffnen der Optionen werden beide Kriegsnebel-Darstellungen vorbereitet. Der Button wechselt zwischen den fertigen Bildern. Beim Schließen wird die ungenutzte Darstellung freigegeben.
 
 ## Bauen
 
@@ -119,7 +103,7 @@ Die vorhandene Ingame-Karte wird als kleine HUD-Minimap wiederverwendet und auf 
 dotnet build .\src\MiniMapMod.csproj -p:GameDir="C:\Program Files (x86)\Steam\steamapps\common\7 Days To Die"
 ```
 
-Die erzeugte DLL wird nach `bin/Debug/netstandard2.1/` geschrieben.
+Die erzeugte DLL liegt unter `src/bin/Debug/netstandard2.1/MiniMap_Mod.dll`.
 
 ## Versionierung
 

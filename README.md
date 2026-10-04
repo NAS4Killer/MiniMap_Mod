@@ -17,7 +17,8 @@ Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
 
 ## Bedienung
 
-**F5-Verhalten** ist im Menü wählbar: „Direkt ins Menü“ öffnet und schließt die Optionen mit F5 (Standard). „Ein/Aus + Doppel-F5“ blendet mit einmal F5 die Minimap ein/aus und öffnet mit zweimal F5 innerhalb von 0,3 Sekunden die Optionen. Der einzelne Tastendruck wird deshalb erst nach dieser kurzen Wartezeit ausgeführt. Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls. Änderungen werden gespeichert.
+MiniMap Menü aufrufen mit F5.  
+Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls. Änderungen werden gespeichert.
 
 - **Minimap:** an/aus. Im Escape-Menü wird die Karte ausgeblendet.
 - **Zoomfaktor:** 0, 2, 4, 6, 8 oder 10; größere Werte zoomen näher heran.
@@ -33,6 +34,9 @@ Kopie installieren; Updates ersetzen den vorhandenen Mod-Ordner.
 - **Koordinaten:** an/aus; eine Zeile über oder unter der Karte. X und Y zeigen die Kartenposition, Z die Höhe in Metern.
 - **N–S–O–W:** an/aus; Himmelsrichtungen am Kartenrand. Bei drehender Karte folgen ihre Positionen der Kartenausrichtung.
 - **Position:** vier Richtungsknöpfe mit ▲ ▼ ◄ ►; Schrittweite 1, 10 oder 100 Pixel. Ein blauer Buttonrahmen markiert die Schrittweite. **S** speichert die Position als Standard, **R** stellt diesen Standard wieder her. Beim Überfahren von R oder S erscheint ein Erklärungstext unter GitHub.
+- **F5-Verhalten** ist im Menü wählbar: 
+-„Direkt ins Menü“ öffnet und schließt die Optionen mit F5 (Standard). 
+-„Ein/Aus + Doppel-F5“ blendet mit F5 die Minimap ein/aus und öffnet mit zweimal F5  die Optionen.
 - **Version:** zeigt die installierte Mod-Version.
 - **Github:** öffnet die Projektseite, wenn kein Update verfügbar ist. Beim ersten Öffnen des Menüs wird automatisch geprüft. Ein neues Release erscheint als grünes **Download + Version**, nach dem Download als grünes **Installieren + Version**.
 - **Release Notes:** erscheint unter dem Updatebutton, wenn ein Update verfügbar ist, und öffnet die Releasebeschreibung genau dieser Version auf GitHub.
@@ -45,9 +49,8 @@ die Positionstasten und die Schrittweitentasten sind innerhalb ihrer Zeile gleic
 
 ## Wenn keine MiniMap erscheint
 
-Ordnerstruktur, Start ohne Easy Anti-Cheat und Spielversion 3.2 prüfen.
-Mit F5 kontrollieren, dass die MiniMap eingeschaltet ist. Doppelte
-Mod-Installationen vermeiden.
+Ordnerstruktur und Spielversion 3.2 prüfen.
+Mit F5 kontrollieren, dass die MiniMap eingeschaltet ist. Doppelte Mod-Installationen vermeiden.
 
 ## Erstes Ziel
 

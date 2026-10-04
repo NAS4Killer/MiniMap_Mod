@@ -25,6 +25,8 @@ internal sealed class MiniMapPixelProcessor
 
     internal void Cancel() { Pixels = null; phase = 4; }
 
+    internal void ReleaseScratch() { Cancel(); distance = null; }
+
     // A hard work limit and a small CPU time budget prevent an entire texture from blocking one frame.
     internal bool Step(int budget = 262144, double maxMilliseconds = 2.0)
     {

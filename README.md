@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.1.0.0**
+Version: **0.1.0.2**
 
 ## Installation
 
@@ -54,6 +54,8 @@ Mod-Installationen vermeiden.
 Die vorhandene Ingame-Karte wird als kleine HUD-MiniMap wiederverwendet. Angezeigt wird nur der lokale Spieler.
 
 ## Technischer Stand
+
+- Die Erkundungsmaske bleibt unabhängig von der Kriegsnebel-Option erhalten. Kriegsnebel schaltet nur zwischen grauer und transparenter Darstellung unbekannter Bereiche um; der Randverlauf bleibt eine eigene Option.
 
 - Teilaktualisierung: bei normalen Chunkwechseln werden nur geänderte 64×64-Pixel-Kacheln gelesen, bearbeitet und per GPU-Kopie übertragen. Der Gelände-Randverlauf liest 12 Pixel Umgebung mit, um Kachelnähte zu vermeiden. Ohne GPU-Kopierunterstützung bleibt eine vollständige Übertragung als Rückfall erhalten. Laden, Einstellungswechsel und vollständige Neuzeichnungen nutzen weiterhin die verteilte Gesamtverarbeitung.
 

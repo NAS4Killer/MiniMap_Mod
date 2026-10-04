@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.1.0.0";
+    public const string Version = "0.1.0.2";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
@@ -184,6 +184,71 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private readonly Color32[] tileWithHalo = new Color32[88 * 88];
     private Texture2D tileTexture;
     private bool copyTextureUnavailable;
+    private bool settingsSnapshotRequested;
+    private Texture2D alternateFogTexture;
+    private bool preparedEdgeFade;
+
+    public void BeginSettingsPreview()
+    {
+        settingsSnapshotRequested = true;
+    }
+
+    public void EndSettingsPreview()
+    {
+        if (pixelProcessor.Running) pixelsDirty = true;
+        settingsSnapshotRequested = false;
+        if (alternateFogTexture != null) UnityEngine.Object.Destroy(alternateFogTexture);
+        alternateFogTexture = null;
+        pixelProcessor.ReleaseScratch();
+        // Resume the existing incremental exploration refresh after leaving the menu.
+        lastPlayerChunk = new Vector2i(int.MinValue, int.MinValue);
+    }
+
+    public bool TogglePreparedFog()
+    {
+        if (alternateFogTexture == null || settingsSnapshotRequested) return false;
+        Texture2D previous = displayMapTexture;
+        displayMapTexture = alternateFogTexture;
+        alternateFogTexture = previous;
+        MiniMapPreferences.FogEnabled = !MiniMapPreferences.FogEnabled;
+        UpdateMapRendering();
+        return true;
+    }
+
+    private void PrepareSettingsSnapshot()
+    {
+        // This full preparation/upload is restricted to the open options menu.
+        if (!settingsSnapshotRequested || !xui.playerUI.windowManager.IsWindowOpen("miniMapSettings")) return;
+        pixelProcessor.Cancel();
+        if (alternateFogTexture != null) UnityEngine.Object.Destroy(alternateFogTexture);
+        alternateFogTexture = null;
+        var source = new Color32[mapTexture.width * mapTexture.height];
+        mapTexture.GetRawTextureData<Color32>().CopyTo(source);
+        for (int variant = 0; variant < 2; variant++)
+        {
+            var pixels = (Color32[])source.Clone();
+            bool fog = variant == 0 ? MiniMapPreferences.FogEnabled : !MiniMapPreferences.FogEnabled;
+            pixelProcessor.Begin(pixels, mapTexture.width, fog, MiniMapPreferences.EdgeFade);
+            pixelProcessor.Step(int.MaxValue, double.PositiveInfinity);
+            Texture2D texture;
+            if (variant == 0 && displayMapTexture != null) texture = displayMapTexture;
+            else texture = new Texture2D(mapTexture.width, mapTexture.height, TextureFormat.RGBA32, false);
+            texture.wrapMode = TextureWrapMode.Repeat;
+            texture.SetPixels32(pixels);
+            texture.Apply(false, false);
+            if (variant == 0) displayMapTexture = texture;
+            else alternateFogTexture = texture;
+        }
+        pixelProcessor.Cancel();
+        pixelProcessor.ReleaseScratch();
+        displayTextureCenter = mapMiddlePosChunks;
+        displayTextureScroll = mapScrollTextureOffset;
+        preparedEdgeFade = MiniMapPreferences.EdgeFade;
+        settingsSnapshotRequested = false;
+        pixelsDirty = false;
+        makeMapOpaqueAfterRedraw = false;
+        dirtyTiles.Clear();
+    }
 
     public override void Init()
     {
@@ -214,7 +279,6 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         isOpen = true;
         localPlayer = xui.playerUI.entityPlayer;
         bFowMaskEnabled = !GameManager.Instance.IsEditMode();
-        bFowMaskEnabled = MiniMapPreferences.FogEnabled && bFowMaskEnabled;
         initMap();
         if (localPlayer != null)
         {
@@ -229,6 +293,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public override void OnClose()
     {
+        EndSettingsPreview();
         f5Input.Reset();
         pixelProcessor.Cancel();
         miniMapMarkers.Clear();
@@ -267,10 +332,23 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         EntityPlayerLocal player = GameManager.Instance?.World?.GetPrimaryPlayer();
         UpdateCoordinates(player, mapVisible);
         UpdateDirections(player, mapVisible);
-        if (!MiniMapPreferences.Enabled || !isOpen || player == null)
+        if ((!MiniMapPreferences.Enabled && !settingsSnapshotRequested) || !isOpen || player == null)
         {
             miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
                 mapHeading, zoomScale, MiniMapPreferences.MapSize, false);
+            return;
+        }
+        if (alternateFogTexture != null && !settingsSnapshotRequested)
+        {
+            // Keep both snapshots fixed only while the menu is open; no second map is maintained in play.
+            mapHeading = MiniMapPreferences.NorthUp ? 0f : player.rotation.y;
+            if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f,
+                MiniMapPreferences.NorthUp ? -player.rotation.y : 0f);
+            xuiTexture.uiTexture.MarkAsChanged();
+            UpdateMapRendering();
+            int previewBorder = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
+            miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
+                mapHeading, zoomScale, MiniMapPreferences.MapSize - previewBorder * 2, mapVisible && isOpen);
             return;
         }
         bool redrawWasPending = bShouldRedrawMap;
@@ -296,7 +374,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
                 mapMiddlePosPixel = new Vector2(player.position.x, player.position.z);
                 positionMap();
             }
-            MakeKnownMapOpaque();
+            if (settingsSnapshotRequested) PrepareSettingsSnapshot();
+            else MakeKnownMapOpaque();
             UpdateMapRendering();
             float heading = MiniMapPreferences.NorthUp ? 0f : player.rotation.y;
             if (!Mathf.Approximately(mapHeading, heading))
@@ -353,8 +432,25 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public void ApplyPreferences()
     {
+        if (alternateFogTexture != null)
+        {
+            // Only the terrain edge fade changes the cached pixels; layout and brightness do not.
+            if (preparedEdgeFade == MiniMapPreferences.EdgeFade)
+            {
+                ApplyLayoutPreferences();
+                return;
+            }
+            settingsSnapshotRequested = true;
+        }
         pixelProcessor.Cancel();
         pixelsDirty = true;
+        ApplyLayoutPreferences();
+        makeMapOpaqueAfterRedraw = true;
+        bShouldRedrawMap = true;
+    }
+
+    private void ApplyLayoutPreferences()
+    {
         int size = MiniMapPreferences.MapSize;
         int borderWidth = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
         int innerSize = size - borderWidth * 2;
@@ -408,11 +504,12 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         }
         zoomScale = Mathf.Lerp(6.15f, 0.7f, MiniMapPreferences.Zoom / 10f);
         targetZoomScale = zoomScale;
-        bFowMaskEnabled = MiniMapPreferences.FogEnabled && !GameManager.Instance.IsEditMode();
-        makeMapOpaqueAfterRedraw = true;
+        // Always retain the source exploration alpha. FogEnabled changes only its presentation.
+        // Disabling this mask makes previously masked pixels opaque and loses the transparency boundary.
+        bFowMaskEnabled = !GameManager.Instance.IsEditMode();
+        if (localPlayer != null) positionMap();
         UpdateMapRendering();
         MarkShapeGeometryChanged();
-        bShouldRedrawMap = true;
         UpdateDirections(GameManager.Instance?.World?.GetPrimaryPlayer(),
             MiniMapPreferences.Enabled && !xui.playerUI.windowManager.IsWindowOpen("ingameMenu"));
     }
@@ -457,7 +554,17 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             transparentMapMaterial.name = "MiniMap_Mod.TransparentMap";
         }
         if (xuiTexture.Material != transparentMapMaterial) xuiTexture.Material = transparentMapMaterial;
-        if (displayMapTexture != null) xuiTexture.Texture = displayMapTexture;
+        if (displayMapTexture != null)
+        {
+            xuiTexture.Texture = displayMapTexture;
+            // XUiV_Texture applies its queued properties during the view update.
+            // The prepared-menu branch skips base.Update, so bind the renderer now too.
+            if (xuiTexture.uiTexture.mainTexture != displayMapTexture)
+            {
+                xuiTexture.uiTexture.mainTexture = displayMapTexture;
+                xuiTexture.uiTexture.MarkAsChanged();
+            }
+        }
         if (displayMapTexture != null)
         {
             float halfMargin = (2048f - 336f * zoomScale) * 0.5f;
@@ -734,6 +841,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
     public override void Cleanup()
     {
+        EndSettingsPreview();
         pixelProcessor.Cancel();
         tileProcessor.Cancel();
         dirtyTiles.Clear();
@@ -778,7 +886,14 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("brightnessDown", delegate { MiniMapPreferences.Brightness -= 0.1f; Changed(); });
         Bind("brightnessUp", delegate { MiniMapPreferences.Brightness += 0.1f; Changed(); });
         Bind("mapShape", delegate { MiniMapPreferences.MapShape = 1 - MiniMapPreferences.MapShape; Changed(); });
-        Bind("fogToggle", delegate { MiniMapPreferences.FogEnabled = !MiniMapPreferences.FogEnabled; Changed(); });
+        Bind("fogToggle", delegate
+        {
+            if (XUiC_MiniMapArea.Instance?.TogglePreparedFog() == true)
+            {
+                MiniMapPreferences.Save();
+                RefreshValues();
+            }
+        });
         Bind("transparencyToggle", delegate { MiniMapPreferences.MapTransparent = !MiniMapPreferences.MapTransparent; Changed(); });
         Bind("transparencyDown", delegate { MiniMapPreferences.TransparencyPercent -= 1; Changed(); });
         Bind("transparencyUp", delegate { MiniMapPreferences.TransparencyPercent += 1; Changed(); });
@@ -815,9 +930,16 @@ public class XUiC_MiniMapSettings : XUiController
     public override void OnOpen()
     {
         base.OnOpen();
+        XUiC_MiniMapArea.Instance?.BeginSettingsPreview();
         positionHint = "";
         MiniMapUpdater.EnsureChecked();
         RefreshValues();
+    }
+
+    public override void OnClose()
+    {
+        XUiC_MiniMapArea.Instance?.EndSettingsPreview();
+        base.OnClose();
     }
 
     public override void Update(float deltaTime)

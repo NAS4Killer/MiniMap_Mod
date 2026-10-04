@@ -1,9 +1,13 @@
-MiniMap_Mod 0.1.0.0
+MiniMap_Mod 0.1.0.2
 Autor: NAS4Killer
 
 - Andere sichtbare Spieler und Symbole der Originalkarte auf der Minimap, mit den Sichtbarkeitsregeln des Spiels.
 - Marker folgen Kartenposition, Zoom und Drehung und bleiben innerhalb von Kreis oder Quadrat.
 - F5-Verhalten wählbar: direkt ins Optionsmenü oder einmal F5 zum Ein-/Ausblenden und Doppel-F5 zum Öffnen der Optionen.
 - Flüssigere Kartenaktualisierung durch Verarbeitung kleiner geänderter Bereiche statt der gesamten Karte beim normalen Bewegen.
-- Kriegsnebel und transparenter Gelände-Randverlauf bleiben bei Teilaktualisierungen erhalten.
 - Bei ausgeschalteter Minimap pausieren Kartenberechnung und Markeraktualisierung.
+- Kriegsnebel lässt sich ausschalten, ohne erkundetes Gelände transparent zu machen.
+- Nebeldarstellungen werden beim Öffnen der Minimap-Optionen vorbereitet.
+- Der Kriegsnebel-Button wechselt die fertige Darstellung ohne Neuberechnung.
+- Beim Schließen der Optionen wird die ungenutzte Darstellung freigegeben.
+- Während des normalen Spielens bleibt nur die gewählte Darstellung aktiv.

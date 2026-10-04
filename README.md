@@ -50,7 +50,7 @@ Für diese Version sind **eine Installation auf jedem Spieler-PC und die UI-Date
         └── xui.xml
 ```
 
-5. `MiniMap_Mod.dll` nur auf den Spieler-PCs installieren.
+5. Auf den Server **nur `ModInfo.xml`, `windows.xml` und `xui.xml`** mit der oben gezeigten Ordnerstruktur kopieren. **`MiniMap_Mod.dll` nicht auf den Server kopieren; sie gehört auf die Spieler-PCs.**
 6. Easy Anti-Cheat für den Server deaktivieren und den Dedicated Server wieder starten.
 
 **Updates:** Auf PC und Server dieselbe Mod-Version verwenden. Der Updatebutton im Spiel aktualisiert nur die lokale Client-Installation. Die drei Serverdateien bei einem Serverupdate manuell aus derselben Release-ZIP ersetzen und den Server neu starten.

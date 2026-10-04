@@ -4,6 +4,16 @@ Client-Mod für **7 Days to Die 3.2**. Mod-Autor: **NAS4Killer**.
 
 Version: **0.1.0.2**
 
+## Bilder
+
+Minimap im Spiel:
+
+![Minimap im Spiel mit Koordinaten und Himmelsrichtungen](docs/images/minimap-im-spiel.jpg)
+
+Minimap-Optionen:
+
+![Optionsmenü der Minimap](docs/images/minimap-optionen.png)
+
 ## Installation
 
 1. Spiel vollständig beenden.

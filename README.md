@@ -122,6 +122,8 @@ Bei jeder weiteren Aenderung wird mindestens die letzte Stelle `D` erhoeht.
 
 ## Updates
 
+Updates sind optional und werden ausschließlich vom Nutzer gestartet; die Mod installiert keine Updates automatisch ohne dessen Zustimmung.
+
 Beim ersten Öffnen des Optionsmenüs wird das neueste stabile GitHub-Release abgefragt, ohne
 Anmeldung und ohne Zugangsdaten. Ein neueres Release erscheint mit seiner
 Versionsnummer. Gleiche oder ältere Releases werden nicht installiert.

@@ -34,7 +34,7 @@ Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls.
 - **Koordinaten:** an/aus; eine Zeile über oder unter der Karte. X und Y zeigen die Kartenposition, Z die Höhe in Metern.
 - **N–S–O–W:** an/aus; Himmelsrichtungen am Kartenrand. Bei drehender Karte folgen ihre Positionen der Kartenausrichtung.
 - **Position:** vier Richtungsknöpfe mit ▲ ▼ ◄ ►; Schrittweite 1, 10 oder 100 Pixel. Ein blauer Buttonrahmen markiert die Schrittweite. **S** speichert die Position als Standard, **R** stellt diesen Standard wieder her. Beim Überfahren von R oder S erscheint ein Erklärungstext unter GitHub.
-**F5-Verhalten** ist im Menü wählbar: 
+- **F5-Verhalten** ist im Menü wählbar: 
 -„Direkt ins Menü“ öffnet und schließt die Optionen mit F5 (Standard). 
 -„Ein/Aus + Doppel-F5“ blendet mit F5 die Minimap ein/aus und öffnet mit zweimal F5  die Optionen.
 - **Version:** zeigt die installierte Mod-Version.

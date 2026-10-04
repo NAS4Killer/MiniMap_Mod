@@ -1,8 +1,0 @@
-MiniMap_Mod 0.0.6.3
-Autor: NAS4Killer
-
-- Diagnose der kurzen Bildstillstände vorbereitet.
-- Zusammengefasste CPU-Laufzeitmessungen alle 10 Sekunden im Spiellog mit Präfix [MiniMap_Mod] PERF.
-- Separate Messwerte für Mod-Update, Originalkarte, Pixel-Lesen, Randverlauf, Farbverarbeitung, Textur-Upload und Marker.
-- Angezeigt werden Aufrufzahl, Durchschnitt und Maximum in Millisekunden.
-- Kein Funktions- oder Performance-Fix in dieser Diagnoseversion; Aktualisierungsverhalten unverändert.

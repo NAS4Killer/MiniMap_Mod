@@ -1,8 +1,0 @@
-MiniMap_Mod 0.0.5.4
-Mod-Autor: NAS4Killer
-
-- Koordinaten inklusive Höhe hinzugefügt.
-- Anzeige im Optionsmenü ein-/ausschaltbar und über/unter der Karte positionierbar.
-- Einstellungen werden gespeichert; Anzeige folgt Kartenposition und Größe.
-
-Nachträgliche Dokumentation des ersten Koordinaten-Einbaus. Diese Zwischenversion wurde nicht veröffentlicht.

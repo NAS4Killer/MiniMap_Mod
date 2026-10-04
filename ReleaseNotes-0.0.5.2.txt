@@ -1,7 +1,0 @@
-MiniMap_Mod v0.0.5.2
-
-- Bei verfügbarem Update erscheint unter dem Updatebutton ein Release-Notes-Button.
-- Dieser öffnet die GitHub-Releasebeschreibung genau der angebotenen Version.
-- Nach dem Installieren-Klick erscheint Spiel neu starten in Rot.
-- Release-Notes-Button ohne verfügbares Update und nach vorgemerkter Installation ausgeblendet.
-- Installation weiterhin erst nach vollständigem Spielende, mit Sicherung der bisherigen Dateien.

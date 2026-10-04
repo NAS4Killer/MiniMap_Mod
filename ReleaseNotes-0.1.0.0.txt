@@ -1,11 +1,9 @@
 MiniMap_Mod 0.1.0.0
 Autor: NAS4Killer
 
-- Spieler und Originalkarten-Symbole mit den Sichtbarkeitsregeln des Spiels.
-- F5-Verhalten wählbar: direkt ins Menü oder Minimap umschalten und Doppel-F5 fürs Menü.
-- Optimierte Farbverarbeitung mit vorberechneten Tabellen und Verarbeitung über mehrere Frames.
-- Chunkwechsel aktualisieren geänderte Kartenbereiche; 64×64-Pixel-Kacheln reduzieren Kopier- und Übertragungsaufwand.
-- Gelände-Randverlauf mit Umgebungspixeln für nahtlose Kachelübergänge.
-- Bei ausgeschalteter Minimap pausiert die Kartenberechnung.
-- Temporäre Millisekunden-Messungen und PERF-Logmeldungen entfernt; die Zeitbudgets zur Vermeidung von Stoppern bleiben erhalten.
-- Wunschliste aktualisiert: Markerfilter, entfernte Randmarker, zweite Minimap, Standalone und Erz-Radar.
+- Andere sichtbare Spieler und Symbole der Originalkarte auf der Minimap, mit den Sichtbarkeitsregeln des Spiels.
+- Marker folgen Kartenposition, Zoom und Drehung und bleiben innerhalb von Kreis oder Quadrat.
+- F5-Verhalten wählbar: direkt ins Optionsmenü oder einmal F5 zum Ein-/Ausblenden und Doppel-F5 zum Öffnen der Optionen.
+- Flüssigere Kartenaktualisierung durch Verarbeitung kleiner geänderter Bereiche statt der gesamten Karte beim normalen Bewegen.
+- Kriegsnebel und transparenter Gelände-Randverlauf bleiben bei Teilaktualisierungen erhalten.
+- Bei ausgeschalteter Minimap pausieren Kartenberechnung und Markeraktualisierung.

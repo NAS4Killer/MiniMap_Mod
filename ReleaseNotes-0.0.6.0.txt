@@ -1,34 +1,16 @@
 MiniMap_Mod 0.0.6.0
-Mod-Autor: NAS4Killer
+Autor: NAS4Killer
 
-Neue Anzeigen
-- Koordinaten inklusive Höhe, im Menü ein-/ausschaltbar und über oder unter der Karte positionierbar.
-- Einzeilige Koordinaten: X und Y zeigen die Kartenposition; Z bezeichnet die Höhe in Metern.
-- Himmelsrichtungen N, S, O und W am Kartenrand, ein-/ausschaltbar und passend zur Kartendrehung.
-
-Optionsmenü
-- Sonstiges als sichtbare Kategorie: Karte Norden, Himmelsrichtungen, Randverlauf und Kriegsnebel.
-- Beschriftungen unter Sonstiges links; separate An/Aus-Buttons rechts.
-- Einheitliche Gesamtbreite der Bedienzeilen; gleiche Breite innerhalb der Positionstasten und Schrittweitentasten.
-- Direkte Rahmenwahl über Schwarz, Weiß, Grün, Rot und Rahmenlos. Rahmenlos hat einen neutral grauen Buttoninhalt.
-- Blau markierte Auswahlränder für Rahmenfarbe und Schrittweite, ohne blaue Füllung.
-- Richtungstasten mit ▲ ▼ ◄ ►; Hoch-/Runter-Symbole kleiner und nach unten versetzt.
-- Erklärungstexte für R und S beim Überfahren mit der Maus unter GitHub.
-- Schließenbutton entfernt; ESC und F5 schließen das Menü.
-- Versionsanzeige und GitHub-Button mittig unten.
-
-Weitere Änderungen
-- Kartentransparenz auf 1 bis 10 Prozent in 1-Prozent-Schritten geändert; ausgeschaltet bleibt die Karte deckend.
-- Quadratischen Kartenrahmen korrigiert: nur der Rand wird gefärbt.
-- Einstellungen für Koordinaten und Himmelsrichtungen werden gespeichert.
-- Bestehende blaue Kartenrahmen werden auf Grün übernommen.
-
-Installation
-- Spiel vollständig beenden.
-- Enthaltenen Ordner MiniMap_Mod in den Mods-Ordner der Spielinstallation kopieren und die vorhandenen Mod-Dateien ersetzen.
-- Spiel ohne Easy Anti-Cheat starten. F5 öffnet die Optionen.
-- Persönliche Einstellungen bleiben erhalten.
-
-Kompatibilität
-- Für 7 Days to Die 3.2 entwickelt und im Spiel getestet.
-- Kompatibilität mit Spielversion 3.3 ist noch nicht bestätigt.
+- Updateprüfung beim ersten Öffnen des Optionsmenüs.
+- Ohne Update öffnet der GitHub-Button die Projektseite.
+- Verfügbare Updates erscheinen als grüner Download-Button mit Versionsnummer; nach dem Download als grüner Installieren-Button.
+- Nach vorgemerkter Installation erscheint der Neustarthinweis in Rot. Die Installation erfolgt nach Spielende mit Sicherung.
+- Release-Notes-Button für die angebotene neue Version.
+- Einzeilige Koordinaten inklusive Höhe, ein-/ausschaltbar und über oder unter der Karte positionierbar. Z bezeichnet die Höhe.
+- Ein-/ausschaltbare Himmelsrichtungen N, S, O und W, passend zur Kartendrehung.
+- Überarbeitetes Optionsmenü mit einheitlichen Bedienbreiten und der Kategorie Sonstiges.
+- Direkte Rahmenwahl: Schwarz, Weiß, Grün, Rot oder Rahmenlos. Blaue Auswahlränder für Rahmen und Schrittweite.
+- Kartentransparenz von 1 bis 10 Prozent in Ein-Prozent-Schritten.
+- Richtungstasten ▲ ▼ ◄ ► und Erklärungstexte für Position zurücksetzen (R) und als Standard speichern (S).
+- ESC und F5 schließen das Menü. Version und GitHub-Button stehen mittig unten.
+- Quadratischer Kartenrahmen färbt nur den Rand.

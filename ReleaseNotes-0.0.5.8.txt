@@ -1,8 +1,0 @@
-MiniMap_Mod 0.0.5.8
-Mod-Autor: NAS4Killer
-
-- Positionstasten verwenden testweise ▲ ▼ ◄ ►. Darstellung hängt von der Spielschrift ab.
-- Schließenbutton entfernt; ESC schließt das Optionsmenü, F5 bleibt ebenfalls nutzbar.
-- Version und GitHub-Button in den bisherigen Schließenbereich verschoben.
-- Schrittweitenauswahl durch blauen Buttonrahmen statt eckiger Klammern markiert.
-- Rahmenfarbauswahl durch blauen Buttonrahmen statt X markiert.

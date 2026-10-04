@@ -1,7 +1,0 @@
-MiniMap_Mod 0.0.5.5
-Mod-Autor: NAS4Killer
-
-- Koordinatenanzeige auf eine Zeile umgestellt.
-- X und Y zeigen die Kartenposition, Z bezeichnet die Höhe in Metern.
-
-Nachträgliche Dokumentation der Koordinatenkorrektur. Diese Zwischenversion wurde nicht veröffentlicht.

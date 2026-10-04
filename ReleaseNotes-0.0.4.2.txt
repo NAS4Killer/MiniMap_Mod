@@ -1,6 +1,0 @@
-MiniMap_Mod v0.0.4.2
-
-- Mod-Autor korrigiert: NAS4Killer.
-- Autorenmetadaten in der veroeffentlichten Historie und im Release-Paket bereinigt.
-- Versionsanzeige aktualisiert; Spielfunktionen unveraendert.
-- Private Commit-Metadaten entfernt; aktuelle DLL ohne eingebetteten Debugpfad.

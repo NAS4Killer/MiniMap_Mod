@@ -1,5 +1,0 @@
-MiniMap_Mod 0.0.5.12
-Mod-Autor: NAS4Killer
-
-- R-/S-Erklärungstexte korrekt an OnHovered der Standardbuttons angebunden.
-- Hinweise erscheinen beim Überfahren des klickbaren Buttonbereichs und verschwinden beim Verlassen wieder.

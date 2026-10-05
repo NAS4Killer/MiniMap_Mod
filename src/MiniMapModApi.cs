@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.1.1.0";
+    public const string Version = "0.1.2.0";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
@@ -34,7 +34,7 @@ internal static class MiniMapPreferences
     public static int MapShape;
     public static bool FogEnabled = true;
     public static bool MapTransparent;
-    public static int TransparencyPercent = 5;
+    public static int TransparencyPercent = 6;
     public static bool EdgeFade;
     public static bool NorthUp = true;
     public static bool CoordinatesEnabled;
@@ -135,7 +135,7 @@ internal static class MiniMapPreferences
         Brightness = Mathf.Clamp(Brightness, 0.1f, 1f);
         if (PositionStep != 1 && PositionStep != 10 && PositionStep != 100) PositionStep = 10;
         MapShape = Mathf.Clamp(MapShape, 0, 1);
-        TransparencyPercent = Mathf.Clamp(TransparencyPercent, 1, 10);
+        TransparencyPercent = Mathf.Clamp(Mathf.RoundToInt(TransparencyPercent / 2f) * 2, 2, 20);
     }
 
     private static float ParseFloat(string value, float fallback)
@@ -549,8 +549,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     {
         xuiTexture.GlobalOpacityModifier = 0f;
         float brightness = MiniMapPreferences.Brightness;
-        xuiTexture.Color = new Color(brightness, brightness, brightness,
-            MiniMapPreferences.MapTransparent ? 1f - MiniMapPreferences.TransparencyPercent / 100f : 1f);
+        // Map opacity is applied in FillMapGeometry, independently of the game's UI color handling.
+        xuiTexture.Color = new Color(brightness, brightness, brightness, 1f);
         if (xuiTexture.Material != null && xuiTexture.Material != transparentMapMaterial)
             originalMapMaterial = xuiTexture.Material;
         if (transparentMapMaterial == null)
@@ -731,6 +731,8 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         Vector4 d = new Vector4(left, bottom, right, top);
         Rect uv = new Rect(u0, v0, u1-u0, v1-v0);
         Color tint = colors[offset];
+        tint = MiniMapRenderTint.Apply(tint, isMap, MiniMapPreferences.MapTransparent,
+            MiniMapPreferences.TransparencyPercent);
         verts.RemoveRange(offset, verts.Count - offset);
         uvs.RemoveRange(offset, uvs.Count - offset);
         colors.RemoveRange(offset, colors.Count - offset);
@@ -912,8 +914,8 @@ public class XUiC_MiniMapSettings : XUiController
             }
         });
         Bind("transparencyToggle", delegate { MiniMapPreferences.MapTransparent = !MiniMapPreferences.MapTransparent; Changed(); });
-        Bind("transparencyDown", delegate { MiniMapPreferences.TransparencyPercent -= 1; Changed(); });
-        Bind("transparencyUp", delegate { MiniMapPreferences.TransparencyPercent += 1; Changed(); });
+        Bind("transparencyDown", delegate { MiniMapPreferences.TransparencyPercent -= 2; Changed(); });
+        Bind("transparencyUp", delegate { MiniMapPreferences.TransparencyPercent += 2; Changed(); });
         Bind("edgeFadeToggle", delegate { MiniMapPreferences.EdgeFade = !MiniMapPreferences.EdgeFade; Changed(); });
         Bind("northToggle", delegate { MiniMapPreferences.NorthUp = !MiniMapPreferences.NorthUp; Changed(); });
         Bind("coordinatesToggle", delegate { MiniMapPreferences.CoordinatesEnabled = !MiniMapPreferences.CoordinatesEnabled; Changed(); });
@@ -1084,6 +1086,15 @@ public class XUiC_MiniMapSettings : XUiController
     private void SetButtonText(string id, string value)
     {
         if (GetChildById(id) is XUiC_SimpleButton button) button.Text = value;
+    }
+}
+
+internal static class MiniMapRenderTint
+{
+    internal static Color Apply(Color tint, bool isMap, bool transparent, int percent)
+    {
+        if (isMap && transparent) tint.a *= 1f - Mathf.Clamp(percent, 2, 20) / 100f;
+        return tint;
     }
 }
 

@@ -1,0 +1,7 @@
+MiniMap_Mod 0.1.2.0
+Autor: NAS4Killer
+
+- Kartentransparenz für Spielversion 3.3 korrigiert: direkt auf die gezeichneten Kartenflächen angewendet.
+- Kartentransparenz von 2 bis 20 Prozent in 2-Prozent-Schritten.
+- Spielerpfeil, Marker und Kartenrahmen bleiben von der Kartentransparenz unberührt.
+- Gespeicherte Transparenzwerte werden an die neuen Stufen angepasst.

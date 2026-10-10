@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.1.4.0";
+    public const string Version = "0.2.0.0";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;

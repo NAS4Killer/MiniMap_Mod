@@ -1,0 +1,8 @@
+MiniMap_Mod 0.2.0.0
+
+- Der Spielerpfeil folgt im Fahrzeug der aktuellen Fahrzeugrichtung; mitdrehende Karte und Himmelsrichtungen verwenden ebenfalls die Fahrzeugrichtung.
+- Neue Spielerpfeilfarben: Gelb, Weiß, helles Grün, Rot oder Originalfarbe der Spielkarte einschließlich Gruppenfarben.
+- Die Pfeilfarbauswahl wird gespeichert und im Optionsmenü mit einem blauen Buttonrahmen markiert.
+- Fehlende Buttons in älteren Server-Menüdateien verhindern nicht mehr die Initialisierung des gesamten Minimap-Menüs.
+
+Dedicated Server: Die vollständige Mod wird auf jedem Spieler-PC benötigt. Auf dem Server werden nur ModInfo.xml sowie Config/XUi_InGame/windows.xml und Config/XUi_InGame/xui.xml aktualisiert. Die DLL nicht auf den Server kopieren. Nach dem Aktualisieren den Server neu starten und neu verbinden.

@@ -115,7 +115,7 @@
       <sprite name="arrowRedOutline" depth="10" pos="394,-554" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
       <simplebutton name="arrowOriginal" pos="452,-554" width="48" height="34" caption="Original" font_size="14" />
       <sprite name="arrowOriginalOutline" depth="10" pos="452,-554" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
-      <label name="miniMapVersion" pos="285,-606" width="280" height="32" text="Version 0.1.4.0" font_size="22" justify="center" color="255,255,255,255" />
+      <label name="miniMapVersion" pos="285,-606" width="280" height="32" text="Version 0.2.0.0" font_size="22" justify="center" color="255,255,255,255" />
       <simplebutton name="miniMapUpdate" pos="285,-642" width="280" height="34" caption="Github" font_size="20" />
       <simplebutton name="miniMapReleaseNotes" pos="285,-682" width="280" height="34" caption="Release Notes" font_size="20" visible="false" />
       <label name="miniMapUpdateStatus" pos="285,-722" width="280" height="20" text="" font_size="16" justify="center" color="180,180,180,255" />

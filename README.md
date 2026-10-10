@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2 und 3.3**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.1.4.0**
+Version: **0.2.0.0**
 
 ## Bilder
 

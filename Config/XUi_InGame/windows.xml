@@ -27,8 +27,8 @@
       <label name="miniMapSouth" depth="7" width="24" height="24" text="S" font_size="20" justify="center" color="255,255,255,255" visible="false" />
       <label name="miniMapWest" depth="7" width="24" height="24" text="W" font_size="20" justify="center" color="255,255,255,255" visible="false" />
     </window>
-    <window name="windowMiniMapSettings" width="850" height="698" pos="-425,349" anchor="Center" controller="MiniMapSettings, MiniMap_Mod">
-      <sprite depth="0" sprite="menu_empty" color="18,18,18,245" type="sliced" fillcenter="true" width="850" height="698" />
+    <window name="windowMiniMapSettings" width="850" height="746" pos="-425,373" anchor="Center" controller="MiniMapSettings, MiniMap_Mod">
+      <sprite depth="0" sprite="menu_empty" color="18,18,18,245" type="sliced" fillcenter="true" width="850" height="746" />
       <label pos="530,-78" width="280" height="28" text="Kartentransparenz" font_size="24" color="255,255,255,255" />
       <simplebutton name="transparencyToggle" pos="530,-110" width="280" height="34" caption="AUS" font_size="20" />
       <simplebutton name="transparencyDown" pos="530,-150" width="48" height="34" caption="-" font_size="24" />
@@ -104,11 +104,22 @@
 
       <label pos="30,-510" width="170" height="32" text="F5-Verhalten" font_size="24" color="255,255,255,255" />
       <simplebutton name="f5Mode" pos="220,-506" width="280" height="34" caption="Direkt ins Menü" font_size="20" />
-      <label name="miniMapVersion" pos="285,-558" width="280" height="32" text="Version 0.1.3.0" font_size="22" justify="center" color="255,255,255,255" />
-      <simplebutton name="miniMapUpdate" pos="285,-594" width="280" height="34" caption="Github" font_size="20" />
-      <simplebutton name="miniMapReleaseNotes" pos="285,-634" width="280" height="34" caption="Release Notes" font_size="20" visible="false" />
-      <label name="miniMapUpdateStatus" pos="285,-674" width="280" height="20" text="" font_size="16" justify="center" color="180,180,180,255" />
-      <label name="positionHint" pos="170,-634" width="510" height="28" text="" font_size="19" justify="center" color="255,255,255,255" visible="false" />
+      <label pos="30,-558" width="170" height="32" text="Pfeilfarbe" font_size="24" color="255,255,255,255" />
+      <simplebutton name="arrowYellow" pos="220,-554" width="48" height="34" caption="" font_size="14" />
+      <sprite name="arrowYellowOutline" depth="10" pos="220,-554" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <simplebutton name="arrowWhite" pos="278,-554" width="48" height="34" caption="" font_size="14" />
+      <sprite name="arrowWhiteOutline" depth="10" pos="278,-554" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <simplebutton name="arrowGreen" pos="336,-554" width="48" height="34" caption="" font_size="14" />
+      <sprite name="arrowGreenOutline" depth="10" pos="336,-554" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <simplebutton name="arrowRed" pos="394,-554" width="48" height="34" caption="" font_size="14" />
+      <sprite name="arrowRedOutline" depth="10" pos="394,-554" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <simplebutton name="arrowOriginal" pos="452,-554" width="48" height="34" caption="Original" font_size="14" />
+      <sprite name="arrowOriginalOutline" depth="10" pos="452,-554" width="48" height="34" sprite="menu_empty" type="simple" color="0,0,0,255" />
+      <label name="miniMapVersion" pos="285,-606" width="280" height="32" text="Version 0.1.4.0" font_size="22" justify="center" color="255,255,255,255" />
+      <simplebutton name="miniMapUpdate" pos="285,-642" width="280" height="34" caption="Github" font_size="20" />
+      <simplebutton name="miniMapReleaseNotes" pos="285,-682" width="280" height="34" caption="Release Notes" font_size="20" visible="false" />
+      <label name="miniMapUpdateStatus" pos="285,-722" width="280" height="20" text="" font_size="16" justify="center" color="180,180,180,255" />
+      <label name="positionHint" pos="170,-682" width="510" height="28" text="" font_size="19" justify="center" color="255,255,255,255" visible="false" />
     </window>
   </append>
 </configs>

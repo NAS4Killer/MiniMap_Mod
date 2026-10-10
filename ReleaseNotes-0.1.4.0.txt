@@ -1,0 +1,7 @@
+MiniMap_Mod 0.1.4.0
+
+- Neue Farbauswahl für den Spielerpfeil: Gelb, Weiß, helles Grün, Rot und Originalfarbe der Spielkarte.
+- Original übernimmt die aktuelle Farbzuweisung des Spiels, einschließlich Gruppenfarben.
+- Die Pfeilfarbauswahl wird gespeichert und mit einem blauen Buttonrahmen markiert.
+- Das Optionsmenü bietet eine eigene Zeile für die Pfeilfarbe.
+- Fehlende Buttons in älteren Server-Menüdateien verhindern nicht mehr die Initialisierung des gesamten Minimap-Menüs.

@@ -18,11 +18,12 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.1.3.0";
+    public const string Version = "0.1.4.0";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
     public static int ArrowSize = 40;
+    public static int ArrowColor;
     public static int MapSize = 256;
     public static int FrameStyle;
     public static float Brightness = 1f;
@@ -63,6 +64,7 @@ internal static class MiniMapPreferences
                 else if (key == "F5ToggleMode") F5ToggleMode = value == "1";
                 else if (key == "Zoom") Zoom = ParseFloat(value, Zoom);
                 else if (key == "ArrowSize") ArrowSize = ParseInt(value, ArrowSize);
+                else if (key == "ArrowColor") ArrowColor = ParseInt(value, ArrowColor);
                 else if (key == "MapSize") MapSize = ParseInt(value, MapSize);
                 else if (key == "FrameStyle") FrameStyle = ParseInt(value, FrameStyle);
                 else if (key == "Brightness") Brightness = ParseFloat(value, Brightness);
@@ -101,6 +103,7 @@ internal static class MiniMapPreferences
                 "F5ToggleMode=" + (F5ToggleMode ? "1" : "0"),
                 "Zoom=" + Zoom.ToString("0.0", CultureInfo.InvariantCulture),
                 "ArrowSize=" + ArrowSize,
+                "ArrowColor=" + ArrowColor,
                 "MapSize=" + MapSize,
                 "FrameStyle=" + FrameStyle,
                 "Brightness=" + Brightness.ToString("0.0", CultureInfo.InvariantCulture),
@@ -130,6 +133,7 @@ internal static class MiniMapPreferences
     {
         Zoom = Mathf.Clamp(Mathf.Round(Zoom / 2f) * 2f, 0f, 10f);
         ArrowSize = Mathf.Clamp(ArrowSize, 16, 80);
+        ArrowColor = Mathf.Clamp(ArrowColor, 0, 4);
         MapSize = Mathf.Clamp(MapSize, 128, 480);
         FrameStyle = Mathf.Clamp(FrameStyle, 0, 4);
         Brightness = Mathf.Clamp(Brightness, 0.1f, 1f);
@@ -331,6 +335,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
 
         EntityPlayerLocal player = GameManager.Instance?.World?.GetPrimaryPlayer();
         float playerHeading = MiniMapHeading.Get(player);
+        if (crosshair != null) crosshair.Color = MiniMapArrowColor.Get(player, MiniMapPreferences.ArrowColor);
         UpdateCoordinates(player, mapVisible);
         UpdateDirections(player, mapVisible);
         if ((!MiniMapPreferences.Enabled && !settingsSnapshotRequested) || !isOpen || player == null)
@@ -504,7 +509,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             overlay.Color = new Color(0f, 0f, 0f, 1f - brightness);
         crosshair.Size = new Vector2i(MiniMapPreferences.ArrowSize, MiniMapPreferences.ArrowSize);
         crosshair.Position = new Vector2i(size / 2, -size / 2);
-        crosshair.Color = Color.white;
+        crosshair.Color = MiniMapArrowColor.Get(GameManager.Instance?.World?.GetPrimaryPlayer(), MiniMapPreferences.ArrowColor);
         clippingPanel.ViewComponent.Size = new Vector2i(innerSize, innerSize);
         clippingPanel.ViewComponent.Position = new Vector2i(borderWidth, -borderWidth);
         if (clippingPanel.ViewComponent is XUiV_Panel panel)
@@ -896,6 +901,11 @@ public class XUiC_MiniMapSettings : XUiController
         Bind("zoomUp", delegate { MiniMapPreferences.Zoom += 2f; Changed(); });
         Bind("arrowDown", delegate { MiniMapPreferences.ArrowSize -= 4; Changed(); });
         Bind("arrowUp", delegate { MiniMapPreferences.ArrowSize += 4; Changed(); });
+        Bind("arrowYellow", delegate { MiniMapPreferences.ArrowColor = 1; Changed(); });
+        Bind("arrowWhite", delegate { MiniMapPreferences.ArrowColor = 2; Changed(); });
+        Bind("arrowGreen", delegate { MiniMapPreferences.ArrowColor = 4; Changed(); });
+        Bind("arrowRed", delegate { MiniMapPreferences.ArrowColor = 3; Changed(); });
+        Bind("arrowOriginal", delegate { MiniMapPreferences.ArrowColor = 0; Changed(); });
         Bind("sizeDown", delegate { MiniMapPreferences.MapSize -= 32; Changed(); });
         Bind("sizeUp", delegate { MiniMapPreferences.MapSize += 32; Changed(); });
         Bind("frameBlack", delegate { MiniMapPreferences.FrameStyle = 1; Changed(); });
@@ -938,6 +948,7 @@ public class XUiC_MiniMapSettings : XUiController
         MoveCaptionDown("positionUp");
         MoveCaptionDown("positionDown");
         foreach (string id in new[] { "frameBlack", "frameWhite", "frameGreen", "frameRed", "frameNone",
+                                     "arrowYellow", "arrowWhite", "arrowGreen", "arrowRed", "arrowOriginal",
                                      "positionStep1", "positionStep10", "positionStep100" })
         {
             if (GetChildById(id + "Outline")?.ViewComponent is XUiV_Sprite border)
@@ -982,7 +993,7 @@ public class XUiC_MiniMapSettings : XUiController
         if (hint?.ViewComponent != null)
         {
             hint.ViewComponent.IsVisible = positionHint.Length > 0;
-            hint.ViewComponent.Position = new Vector2i(170, MiniMapUpdater.ReleaseNotesUrl != null ? -670 : -634);
+            hint.ViewComponent.Position = new Vector2i(170, MiniMapUpdater.ReleaseNotesUrl != null ? -718 : -682);
         }
         SetLabel("positionHint", positionHint);
         if (GetChildById("miniMapUpdateStatus")?.ViewComponent != null)
@@ -992,6 +1003,7 @@ public class XUiC_MiniMapSettings : XUiController
         ConfigureFrameFill("frameGreen", new Color32(35, 150, 65, 255));
         ConfigureFrameFill("frameRed", new Color32(190, 35, 35, 255));
         ConfigureFrameFill("frameNone", new Color32(92, 92, 92, 255));
+        RefreshArrowColors();
         SetSelectionBorder("frameBlack", MiniMapPreferences.FrameStyle == 1);
         SetSelectionBorder("frameWhite", MiniMapPreferences.FrameStyle == 2);
         SetSelectionBorder("frameGreen", MiniMapPreferences.FrameStyle == 4);
@@ -1002,6 +1014,11 @@ public class XUiC_MiniMapSettings : XUiController
     private void Bind(string id, Action action)
     {
         XUiController controller = GetChildById(id);
+        if (controller == null)
+        {
+            Debug.LogWarning("[MiniMap_Mod] Menu button missing: " + id + ". Update the server menu files to match the client version.");
+            return;
+        }
         if (controller is XUiC_SimpleButton simpleButton)
             simpleButton.OnPressed += delegate(XUiController sender, int mouseButton) { action(); };
         else
@@ -1023,6 +1040,7 @@ public class XUiC_MiniMapSettings : XUiController
         SetButtonText("miniMapToggle", MiniMapPreferences.Enabled ? "AN" : "AUS");
         SetLabel("zoomValue", MiniMapPreferences.Zoom.ToString("0", CultureInfo.InvariantCulture) + "x");
         SetLabel("arrowValue", MiniMapPreferences.ArrowSize.ToString(CultureInfo.InvariantCulture));
+        RefreshArrowColors();
         SetLabel("sizeValue", MiniMapPreferences.MapSize.ToString(CultureInfo.InvariantCulture));
         SetSelectionBorder("frameBlack", MiniMapPreferences.FrameStyle == 1);
         SetSelectionBorder("frameWhite", MiniMapPreferences.FrameStyle == 2);
@@ -1048,6 +1066,20 @@ public class XUiC_MiniMapSettings : XUiController
     {
         XUiController controller = GetChildById(id);
         if (controller?.ViewComponent is XUiV_Label label) label.Text = value;
+    }
+
+    private void RefreshArrowColors()
+    {
+        ConfigureFrameFill("arrowYellow", Color.yellow);
+        ConfigureFrameFill("arrowWhite", Color.white);
+        ConfigureFrameFill("arrowGreen", new Color32(90, 255, 110, 255));
+        ConfigureFrameFill("arrowRed", new Color32(190, 35, 35, 255));
+        ConfigureFrameFill("arrowOriginal", new Color32(92, 92, 92, 255));
+        SetSelectionBorder("arrowYellow", MiniMapPreferences.ArrowColor == 1);
+        SetSelectionBorder("arrowWhite", MiniMapPreferences.ArrowColor == 2);
+        SetSelectionBorder("arrowGreen", MiniMapPreferences.ArrowColor == 4);
+        SetSelectionBorder("arrowRed", MiniMapPreferences.ArrowColor == 3);
+        SetSelectionBorder("arrowOriginal", MiniMapPreferences.ArrowColor == 0);
     }
 
     private void SetSelectionBorder(string id, bool selected)
@@ -1087,6 +1119,21 @@ public class XUiC_MiniMapSettings : XUiController
     private void SetButtonText(string id, string value)
     {
         if (GetChildById(id) is XUiC_SimpleButton button) button.Text = value;
+    }
+}
+
+internal static class MiniMapArrowColor
+{
+    internal static Color Get(EntityPlayerLocal player, int style)
+    {
+        if (style == 1) return Color.yellow;
+        if (style == 2) return Color.white;
+        if (style == 3) return new Color32(190, 35, 35, 255);
+        if (style == 4) return new Color32(90, 255, 110, 255);
+        NavObject nav = player?.NavObject;
+        if (nav == null) return Color.white;
+        return nav.hiddenOnCompass ? Color.grey
+            : nav.UseOverrideColor ? nav.OverrideColor : nav.CurrentMapSettings?.Color ?? Color.white;
     }
 }
 

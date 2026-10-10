@@ -2,7 +2,7 @@
 
 Client-Mod für **7 Days to Die 3.2 und 3.3**. Mod-Autor: **NAS4Killer**.
 
-Version: **0.1.3.0**
+Version: **0.1.4.0**
 
 ## Bilder
 
@@ -67,6 +67,7 @@ Bei geöffneten Optionen schließt F5 das Menü. **ESC** schließt es ebenfalls.
 - **Minimap:** an/aus. Im Escape-Menü wird die Karte ausgeblendet.
 - **Zoomfaktor:** 0, 2, 4, 6, 8 oder 10; größere Werte zoomen näher heran.
 - **Spielerpfeil:** Größe 16 bis 80, unabhängig von der Kartenhelligkeit.
+- **Pfeilfarbe:** Gelb, Weiß, helles Grün, Rot oder Originalfarbe der Spielkarte. Original übernimmt auch die vom Spiel zugewiesene Gruppenfarbe. Ein blauer Buttonrahmen markiert die gespeicherte Auswahl.
 - **Minimap-Größe:** 128 bis 480.
 - **Rahmen:** fünf direkte Farbbuttons für Schwarz, Weiß, Grün, Rot und Rahmenlos. Ein blauer Buttonrahmen markiert die Auswahl. Der Rahmenlos-Button hat einen neutral grauen Inhalt.
 - **Mapform:** Kreis oder Quadrat.

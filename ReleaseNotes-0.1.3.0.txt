@@ -1,0 +1,6 @@
+MiniMap_Mod 0.1.3.0
+
+- Der Spielerpfeil folgt im Fahrzeug der aktuellen Fahrzeugrichtung statt der Richtung beim Einsteigen.
+- Die mitdrehende Karte und ihre Himmelsrichtungen verwenden ebenfalls die aktuelle Fahrzeugrichtung.
+- Zu Fuß wird weiterhin die Blickrichtung des Spielers verwendet.
+- Die Korrektur betrifft die Client-Mod; die Server-Funktionalität bleibt unverändert.

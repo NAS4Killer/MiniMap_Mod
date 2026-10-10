@@ -18,7 +18,7 @@ namespace MiniMapMod
 
 internal static class MiniMapPreferences
 {
-    public const string Version = "0.1.2.0";
+    public const string Version = "0.1.3.0";
     public static bool F5ToggleMode;
     public static bool Enabled = true;
     public static float Zoom = 1f;
@@ -330,6 +330,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         frame.ViewComponent.IsVisible = mapVisible && MiniMapPreferences.FrameStyle != 0;
 
         EntityPlayerLocal player = GameManager.Instance?.World?.GetPrimaryPlayer();
+        float playerHeading = MiniMapHeading.Get(player);
         UpdateCoordinates(player, mapVisible);
         UpdateDirections(player, mapVisible);
         if ((!MiniMapPreferences.Enabled && !settingsSnapshotRequested) || !isOpen || player == null)
@@ -342,9 +343,9 @@ public class XUiC_MiniMapArea : XUiC_MapArea
         if (alternateFogTexture != null && !settingsSnapshotRequested)
         {
             // Keep both snapshots fixed only while the menu is open; no second map is maintained in play.
-            mapHeading = MiniMapPreferences.NorthUp ? 0f : player.rotation.y;
+            mapHeading = MiniMapPreferences.NorthUp ? 0f : playerHeading;
             if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f,
-                MiniMapPreferences.NorthUp ? -player.rotation.y : 0f);
+                MiniMapPreferences.NorthUp ? -playerHeading : 0f);
             xuiTexture.uiTexture.MarkAsChanged();
             UpdateMapRendering();
             int previewBorder = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
@@ -379,13 +380,13 @@ public class XUiC_MiniMapArea : XUiC_MapArea
             if (settingsSnapshotRequested) PrepareSettingsSnapshot();
             else MakeKnownMapOpaque();
             UpdateMapRendering();
-            float heading = MiniMapPreferences.NorthUp ? 0f : player.rotation.y;
+            float heading = MiniMapPreferences.NorthUp ? 0f : playerHeading;
             if (!Mathf.Approximately(mapHeading, heading))
             {
                 mapHeading = heading;
                 xuiTexture.uiTexture.MarkAsChanged();
             }
-            if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f, MiniMapPreferences.NorthUp ? -player.rotation.y : 0f);
+            if (crosshair != null) crosshair.UiTransform.localEulerAngles = new Vector3(0f, 0f, MiniMapPreferences.NorthUp ? -playerHeading : 0f);
         }
         int markerBorder = MiniMapPreferences.FrameStyle == 0 ? 0 : 5;
         miniMapMarkers.Update(xui, transformSpritesParent, prefabMapSprite, player, mapMiddlePosPixel,
@@ -424,7 +425,7 @@ public class XUiC_MiniMapArea : XUiC_MapArea
     private void UpdateDirections(EntityPlayerLocal player, bool mapVisible)
     {
         bool visible = mapVisible && MiniMapPreferences.DirectionsEnabled && player != null;
-        float heading = MiniMapPreferences.NorthUp || player == null ? 0f : player.rotation.y;
+        float heading = MiniMapPreferences.NorthUp ? 0f : MiniMapHeading.Get(player);
         float center = MiniMapPreferences.MapSize / 2f;
         float radius = Mathf.Max(0f, center - 18f);
         for (int i = 0; i < directionLabels.Length; i++)
@@ -1086,6 +1087,16 @@ public class XUiC_MiniMapSettings : XUiController
     private void SetButtonText(string id, string value)
     {
         if (GetChildById(id) is XUiC_SimpleButton button) button.Text = value;
+    }
+}
+
+internal static class MiniMapHeading
+{
+    internal static float Get(EntityPlayerLocal player)
+    {
+        if (player == null) return 0f;
+        // Attached players retain their own yaw; the vehicle maintains its current world yaw.
+        return player.AttachedToEntity is EntityVehicle vehicle ? vehicle.rotation.y : player.rotation.y;
     }
 }
 
